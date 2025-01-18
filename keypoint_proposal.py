@@ -50,16 +50,16 @@ class KeypointProposer:
         return candidate_keypoints, projected
 
     def _preprocess(self, rgb, points, masks):
-        if masks.is_cuda:
-            masks = masks.cpu()
+        # if masks.is_cuda:
+        #     masks = masks.cpu()
             # print("***masks", masks)
             
-        rgb = rgb.cpu()  # move to CPU if on GPU
-        rgb = rgb.numpy() 
+        # rgb = rgb.cpu()  # move to CPU if on GPU
+        # rgb = rgb.numpy() 
         # print("***rgb", rgb)
             
         # convert masks to binary masks
-        masks = [masks == uid for uid in np.unique(masks.numpy())]
+        masks = [masks == uid for uid in np.unique(masks)]
         # print("***masks2", masks)
         # ensure input shape is compatible with dinov2
         H, W, _ = rgb.shape
@@ -125,7 +125,6 @@ class KeypointProposer:
         for rigid_group_id, binary_mask in enumerate(masks):
             # ignore mask that is too large
             # print("***binary_mask", binary_mask)
-            binary_mask = binary_mask.cpu().numpy()
             if np.mean(binary_mask) > self.config['max_mask_ratio']:
                 continue
             # consider only foreground features
