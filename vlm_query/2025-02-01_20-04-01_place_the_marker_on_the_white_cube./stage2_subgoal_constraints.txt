@@ -1,0 +1,7 @@
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """Position the marker 10cm above the white cube."""
+    cube_top_position = keypoints[5] + np.array([0, 0, 0.1])
+    marker_position = keypoints[4]
+    cost = np.linalg.norm(marker_position - cube_top_position)
+    return cost
+

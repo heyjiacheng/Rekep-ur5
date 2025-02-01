@@ -1,0 +1,7 @@
+def stage3_subgoal_constraint1(end_effector, keypoints):
+    """Place the marker on the white cube."""
+    cube_top_position = keypoints[5]
+    marker_position = keypoints[4]
+    cost = np.linalg.norm(marker_position - cube_top_position)
+    return cost
+

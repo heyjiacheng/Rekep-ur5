@@ -214,7 +214,7 @@ if __name__ == "__main__":
         # args.instruction = "Place the pasta bag into the drawer, the end-effector is already at the drawer's keypoint, the drawer is already aligned with the pasta bag and at the proper height."
         # args.instruction = "Pour the object in the bowl into the pot, the end-effector is already at the bowl's keypoint, the bowl is already aligned with the pot and at the proper height."
     if args.data_path is None:
-        args.data_path = "/home/xu/Desktop/workspace/Rekep/realsense_captures"
+        args.data_path = "realsense_captures"
     if args.obj_list is None:
         args.obj_list = "marker pen . white cube . robot gripper"
     if args.visualize is None:
