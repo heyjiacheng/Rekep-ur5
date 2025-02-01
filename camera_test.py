@@ -36,10 +36,7 @@ if not found_rgb:
 
 config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
 
-if device_product_line == 'L500':
-    config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
-else:
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
 # Start streaming
 pipeline.start(config)
@@ -90,9 +87,13 @@ try:
             color_path = os.path.join(save_dir, f'color_{timestamp}.png')
             cv2.imwrite(color_path, color_image)
             
-            # 保存深度图像
-            depth_path = os.path.join(save_dir, f'depth_{timestamp}.png')
-            cv2.imwrite(depth_path, depth_colormap)
+            # 保存原始深度数据为npy格式
+            depth_path = os.path.join(save_dir, f'depth_{timestamp}.npy')
+            np.save(depth_path, depth_image)  # 保存原始深度数据
+            
+            # 保存深度可视化图像（用于查看）
+            depth_vis_path = os.path.join(save_dir, f'depth_vis_{timestamp}.png')
+            cv2.imwrite(depth_vis_path, depth_colormap)
             
             # 保存组合图像
             combined_path = os.path.join(save_dir, f'combined_{timestamp}.png')
@@ -100,7 +101,8 @@ try:
             
             print(f'图片已保存到 {save_dir}:')
             print(f'- RGB图像: color_{timestamp}.png')
-            print(f'- 深度图像: depth_{timestamp}.png')
+            print(f'- 深度数据: depth_{timestamp}.npy')
+            print(f'- 深度可视化图像: depth_vis_{timestamp}.png')
             print(f'- 组合图像: combined_{timestamp}.png')
 
 finally:

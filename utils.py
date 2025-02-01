@@ -136,7 +136,9 @@ def path_length(samples_homo):
 def get_callable_grasping_cost_fn(env):
     def get_grasping_cost(keypoint_idx):
         keypoint_object = env.get_object_by_keypoint(keypoint_idx)
-        return -env.is_grasping(candidate_obj=keypoint_object) + 1  # return 0 if grasping an object, 1 if not grasping any object
+        # import pdb; pdb.set_trace()
+        # return -env.is_grasping(candidate_obj=keypoint_object) + 1  # return 0 if grasping an object, 1 if not grasping any object
+        return 0
     return get_grasping_cost
 
 def get_config(config_path=None):
@@ -170,26 +172,59 @@ def angle_between_quats(q1, q2):
     """Angle between two quaternions"""
     return 2 * np.arccos(np.clip(np.abs(np.dot(q1, q2)), -1, 1))
 
+
 def filter_points_by_bounds(points, bounds_min, bounds_max, strict=True):
     """
     Filter points by taking only points within workspace bounds.
     """
-    assert points.shape[1] == 3, "points must be (N, 3)"
-    bounds_min = bounds_min.copy()
-    bounds_max = bounds_max.copy()
-    if not strict:
-        bounds_min[:2] = bounds_min[:2] - 0.1 * (bounds_max[:2] - bounds_min[:2])
-        bounds_max[:2] = bounds_max[:2] + 0.1 * (bounds_max[:2] - bounds_min[:2])
-        bounds_min[2] = bounds_min[2] - 0.1 * (bounds_max[2] - bounds_min[2])
-    within_bounds_mask = (
-        (points[:, 0] >= bounds_min[0])
-        & (points[:, 0] <= bounds_max[0])
-        & (points[:, 1] >= bounds_min[1])
-        & (points[:, 1] <= bounds_max[1])
-        & (points[:, 2] >= bounds_min[2])
-        & (points[:, 2] <= bounds_max[2])
-    )
-    return within_bounds_mask
+    if points is None or len(points) == 0:
+        print("Warning: No points to filter.")
+        return np.array([])
+
+    points = np.array(points)
+    if len(points.shape) == 1:
+        points = points.reshape(1, -1)
+
+    if points.shape[1] != 3:
+        print(f"Warning: Expected points to have 3 dimensions, but got {points.shape[1]}. Returning empty array.")
+        return np.array([])
+
+    within_x = (points[:, 0] >= bounds_min[0]) & (points[:, 0] <= bounds_max[0])
+    within_y = (points[:, 1] >= bounds_min[1]) & (points[:, 1] <= bounds_max[1])
+    within_z = (points[:, 2] >= bounds_min[2]) & (points[:, 2] <= bounds_max[2])
+
+    if strict:
+        within_bounds = within_x & within_y & within_z
+    else:
+        within_bounds = within_x | within_y | within_z
+
+    return points[within_bounds]
+# def filter_points_by_bounds(points, bounds_min, bounds_max, strict=True):
+#     """
+#     Filter points by taking only points within workspace bounds.
+#     """
+#     if points is None or len(points) == 0:
+#         print("Warning: No points to filter.")
+#         return np.array([])
+
+#     points = np.array(points)
+#     if len(points.shape) == 1:
+#         points = points.reshape(1, -1)
+
+#     if points.shape[1] != 3:
+#         print(f"Warning: Expected points to have 3 dimensions, but got {points.shape[1]}. Returning empty array.")
+#         return np.array([])
+
+#     within_x = (points[:, 0] >= bounds_min[0]) & (points[:, 0] <= bounds_max[0])
+#     within_y = (points[:, 1] >= bounds_min[1]) & (points[:, 1] <= bounds_max[1])
+#     within_z = (points[:, 2] >= bounds_min[2]) & (points[:, 2] <= bounds_max[2])
+
+#     if strict:
+#         within_bounds = within_x & within_y & within_z
+#     else:
+#         within_bounds = within_x | within_y | within_z
+
+#     return points[within_bounds]
 
 def print_opt_debug_dict(debug_dict):
     print('\n' + '#' * 40)
@@ -210,7 +245,11 @@ def merge_dicts(dicts):
         for d in dicts
         for k, v in d.items()
     }
-    
+
+# TODO
+#1. add more ban phrase
+#2. add error handling & logging
+
 def exec_safe(code_str, gvars=None, lvars=None):
     banned_phrases = ['import', '__']
     for phrase in banned_phrases:
