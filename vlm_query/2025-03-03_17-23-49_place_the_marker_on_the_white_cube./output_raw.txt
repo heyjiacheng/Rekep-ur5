@@ -1,0 +1,35 @@
+```python
+# The task involves placing the marker on the white cube. This can be broken down into two stages:
+# 1. Grasp the marker.
+# 2. Place the marker on top of the white cube.
+
+num_stages = 2
+
+### stage 1 sub-goal constraints
+def stage1_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the marker (keypoint 0)."""
+    marker_position = keypoints[0]
+    cost = np.linalg.norm(end_effector - marker_position)
+    return cost
+
+### stage 1 path constraints
+# No path constraints needed for grasping.
+
+### stage 2 sub-goal constraints
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """The marker (keypoint 0) is on top of the white cube (keypoint 1)."""
+    marker_position = keypoints[0]
+    cube_position = keypoints[1]
+    offsetted_point = cube_position + np.array([0, 0, 0.1])  # Assume 10cm above the cube
+    cost = np.linalg.norm(marker_position - offsetted_point)
+    return cost
+
+### stage 2 path constraints
+def stage2_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the marker (keypoint 0)."""
+    return get_grasping_cost_by_keypoint_idx(0)
+
+grasp_keypoints = [0, -1]
+
+release_keypoints = [-1, 0]
+```

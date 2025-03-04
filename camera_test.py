@@ -41,6 +41,28 @@ config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 # Start streaming
 pipeline.start(config)
 
+# 获取相机内参
+profile = pipeline.get_active_profile()
+
+# 获取深度流内参
+depth_profile = rs.video_stream_profile(profile.get_stream(rs.stream.depth))
+depth_intrinsics = depth_profile.get_intrinsics()
+
+# 获取彩色流内参
+color_profile = rs.video_stream_profile(profile.get_stream(rs.stream.color))
+color_intrinsics = color_profile.get_intrinsics()
+
+# 打印内参信息
+print("\n深度相机内参:")
+print(f"分辨率: {depth_intrinsics.width}x{depth_intrinsics.height}")
+print(f"焦距: fx={depth_intrinsics.fx:.2f}, fy={depth_intrinsics.fy:.2f}")
+print(f"主点: ppx={depth_intrinsics.ppx:.2f}, ppy={depth_intrinsics.ppy:.2f}")
+
+print("\n彩色相机内参:")
+print(f"分辨率: {color_intrinsics.width}x{color_intrinsics.height}")
+print(f"焦距: fx={color_intrinsics.fx:.2f}, fy={color_intrinsics.fy:.2f}")
+print(f"主点: ppx={color_intrinsics.ppx:.2f}, ppy={color_intrinsics.ppy:.2f}")
+
 try:
     while True:
         # Wait for a coherent pair of frames: depth and color
@@ -99,11 +121,41 @@ try:
             combined_path = os.path.join(save_dir, f'combined_{timestamp}.png')
             cv2.imwrite(combined_path, images)
             
+            # 保存内参信息
+            intrinsics_dir = os.path.join(save_dir, "intrinsics")
+            os.makedirs(intrinsics_dir, exist_ok=True)
+
+            # 保存深度内参
+            depth_intrin_path = os.path.join(intrinsics_dir, f'depth_intrin_{timestamp}.txt')
+            with open(depth_intrin_path, 'w') as f:
+                f.write(f"Width: {depth_intrinsics.width}\n")
+                f.write(f"Height: {depth_intrinsics.height}\n")
+                f.write(f"fx: {depth_intrinsics.fx}\n")
+                f.write(f"fy: {depth_intrinsics.fy}\n")
+                f.write(f"ppx: {depth_intrinsics.ppx}\n")
+                f.write(f"ppy: {depth_intrinsics.ppy}\n")
+                f.write(f"Distortion Model: {depth_intrinsics.model}\n")
+                f.write(f"Distortion Coefficients: {depth_intrinsics.coeffs}\n")
+
+            # 保存彩色内参
+            color_intrin_path = os.path.join(intrinsics_dir, f'color_intrin_{timestamp}.txt')
+            with open(color_intrin_path, 'w') as f:
+                f.write(f"Width: {color_intrinsics.width}\n")
+                f.write(f"Height: {color_intrinsics.height}\n")
+                f.write(f"fx: {color_intrinsics.fx}\n")
+                f.write(f"fy: {color_intrinsics.fy}\n")
+                f.write(f"ppx: {color_intrinsics.ppx}\n")
+                f.write(f"ppy: {color_intrinsics.ppy}\n")
+                f.write(f"Distortion Model: {color_intrinsics.model}\n")
+                f.write(f"Distortion Coefficients: {color_intrinsics.coeffs}\n")
+
             print(f'图片已保存到 {save_dir}:')
             print(f'- RGB图像: color_{timestamp}.png')
             print(f'- 深度数据: depth_{timestamp}.npy')
             print(f'- 深度可视化图像: depth_vis_{timestamp}.png')
             print(f'- 组合图像: combined_{timestamp}.png')
+            print(f'- 深度内参文件: depth_intrin_{timestamp}.txt')
+            print(f'- 彩色内参文件: color_intrin_{timestamp}.txt')
 
 finally:
     # Stop streaming
