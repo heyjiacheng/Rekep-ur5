@@ -74,26 +74,13 @@ class R2D2Vision:
         # D435i default 
         class RS_Intrinsics:
             def __init__(self):
-                self.fx = 386.738  # focal length x
-                self.fy = 386.738  # focal length y
-                self.ppx = 319.5   # principal point x
-                self.ppy = 239.5   # principal point y
-        class ZED_Intrinsics:
-            def __init__(self):
-                self.fx = 527.53936768  # focal length x
-                self.fy = 527.53936768  # focal length y
-                self.ppx = 646.46374512  # principal point x
-                self.ppy = 353.03808594  # principal point y
+                self.fx = 608.90  # focal length x
+                self.fy = 609.04  # focal length y
+                self.ppx = 309.49   # principal point x
+                self.ppy = 249.53   # principal point y
                 
-        # Use fixed camera intrinsics
-        if file_path is not None:
-            with open(file_path, 'r') as file:
-                data = json.load(file)
-            intrinsics = data['camera']['fixed']['intrinsics']
-            depth_scale = data['camera']['fixed']['depth_scale']
-        else:
-            intrinsics = ZED_Intrinsics()
-            depth_scale = 0.001  # Default depth scale (1mm)
+        intrinsics = RS_Intrinsics()
+        depth_scale = 0.001  # Default depth scale (1mm)
 
         return intrinsics, depth_scale
 

@@ -106,56 +106,56 @@ try:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
             
             # 保存RGB图像
-            color_path = os.path.join(save_dir, f'color_{timestamp}.png')
+            color_path = os.path.join(save_dir, 'varied_camera_raw.png')
             cv2.imwrite(color_path, color_image)
             
             # 保存原始深度数据为npy格式
-            depth_path = os.path.join(save_dir, f'depth_{timestamp}.npy')
+            depth_path = os.path.join(save_dir, 'varied_camera_depth.npy')
             np.save(depth_path, depth_image)  # 保存原始深度数据
             
             # 保存深度可视化图像（用于查看）
-            depth_vis_path = os.path.join(save_dir, f'depth_vis_{timestamp}.png')
-            cv2.imwrite(depth_vis_path, depth_colormap)
+            # depth_vis_path = os.path.join(save_dir, f'depth_vis_{timestamp}.png')
+            # cv2.imwrite(depth_vis_path, depth_colormap)
             
             # 保存组合图像
-            combined_path = os.path.join(save_dir, f'combined_{timestamp}.png')
-            cv2.imwrite(combined_path, images)
+            # combined_path = os.path.join(save_dir, f'combined_{timestamp}.png')
+            # cv2.imwrite(combined_path, images)
             
             # 保存内参信息
-            intrinsics_dir = os.path.join(save_dir, "intrinsics")
-            os.makedirs(intrinsics_dir, exist_ok=True)
+            # intrinsics_dir = os.path.join(save_dir, "intrinsics")
+            # os.makedirs(intrinsics_dir, exist_ok=True)
 
             # 保存深度内参
-            depth_intrin_path = os.path.join(intrinsics_dir, f'depth_intrin_{timestamp}.txt')
-            with open(depth_intrin_path, 'w') as f:
-                f.write(f"Width: {depth_intrinsics.width}\n")
-                f.write(f"Height: {depth_intrinsics.height}\n")
-                f.write(f"fx: {depth_intrinsics.fx}\n")
-                f.write(f"fy: {depth_intrinsics.fy}\n")
-                f.write(f"ppx: {depth_intrinsics.ppx}\n")
-                f.write(f"ppy: {depth_intrinsics.ppy}\n")
-                f.write(f"Distortion Model: {depth_intrinsics.model}\n")
-                f.write(f"Distortion Coefficients: {depth_intrinsics.coeffs}\n")
+            # depth_intrin_path = os.path.join(intrinsics_dir, f'depth_intrin_{timestamp}.txt')
+            # with open(depth_intrin_path, 'w') as f:
+            #     f.write(f"Width: {depth_intrinsics.width}\n")
+            #     f.write(f"Height: {depth_intrinsics.height}\n")
+            #     f.write(f"fx: {depth_intrinsics.fx}\n")
+            #     f.write(f"fy: {depth_intrinsics.fy}\n")
+            #     f.write(f"ppx: {depth_intrinsics.ppx}\n")
+            #     f.write(f"ppy: {depth_intrinsics.ppy}\n")
+            #     f.write(f"Distortion Model: {depth_intrinsics.model}\n")
+            #     f.write(f"Distortion Coefficients: {depth_intrinsics.coeffs}\n")
 
             # 保存彩色内参
-            color_intrin_path = os.path.join(intrinsics_dir, f'color_intrin_{timestamp}.txt')
-            with open(color_intrin_path, 'w') as f:
-                f.write(f"Width: {color_intrinsics.width}\n")
-                f.write(f"Height: {color_intrinsics.height}\n")
-                f.write(f"fx: {color_intrinsics.fx}\n")
-                f.write(f"fy: {color_intrinsics.fy}\n")
-                f.write(f"ppx: {color_intrinsics.ppx}\n")
-                f.write(f"ppy: {color_intrinsics.ppy}\n")
-                f.write(f"Distortion Model: {color_intrinsics.model}\n")
-                f.write(f"Distortion Coefficients: {color_intrinsics.coeffs}\n")
+            # color_intrin_path = os.path.join(intrinsics_dir, f'color_intrin_{timestamp}.txt')
+            # with open(color_intrin_path, 'w') as f:
+            #     f.write(f"Width: {color_intrinsics.width}\n")
+            #     f.write(f"Height: {color_intrinsics.height}\n")
+            #     f.write(f"fx: {color_intrinsics.fx}\n")
+            #     f.write(f"fy: {color_intrinsics.fy}\n")
+            #     f.write(f"ppx: {color_intrinsics.ppx}\n")
+            #     f.write(f"ppy: {color_intrinsics.ppy}\n")
+            #     f.write(f"Distortion Model: {color_intrinsics.model}\n")
+            #     f.write(f"Distortion Coefficients: {color_intrinsics.coeffs}\n")
 
             print(f'图片已保存到 {save_dir}:')
             print(f'- RGB图像: color_{timestamp}.png')
             print(f'- 深度数据: depth_{timestamp}.npy')
-            print(f'- 深度可视化图像: depth_vis_{timestamp}.png')
-            print(f'- 组合图像: combined_{timestamp}.png')
-            print(f'- 深度内参文件: depth_intrin_{timestamp}.txt')
-            print(f'- 彩色内参文件: color_intrin_{timestamp}.txt')
+            # print(f'- 深度可视化图像: depth_vis_{timestamp}.png')
+            # print(f'- 组合图像: combined_{timestamp}.png')
+            # print(f'- 深度内参文件: depth_intrin_{timestamp}.txt')
+            # print(f'- 彩色内参文件: color_intrin_{timestamp}.txt')
 
 finally:
     # Stop streaming
