@@ -1,0 +1,5 @@
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """The marker's bottom (keypoint 0) is 1cm above the white cube (keypoint 2)."""
+    offsetted_point = keypoints[2] + np.array([0, 0, 0.01])
+    return np.linalg.norm(end_effector - offsetted_point)
+

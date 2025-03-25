@@ -1,19 +1,20 @@
-import cv2
 import torch
 import numpy as np
 import json
 import os
 import argparse
-from environment import ReKepOGEnv
-from keypoint_proposal import KeypointProposer
-from constraint_generation import ConstraintGenerator
-from ik_solver import IKSolver
-from subgoal_solver import SubgoalSolver
-from path_solver import PathSolver
-from visualizer import Visualizer
-import transform_utils as T
+from rekep.environment import ReKepOGEnv
+from rekep.keypoint_proposal import KeypointProposer
+from rekep.constraint_generation import ConstraintGenerator
+from rekep.ik_solver import IKSolver
+from rekep.subgoal_solver import SubgoalSolver
+from rekep.path_solver import PathSolver
+from rekep.visualizer import Visualizer
+import rekep.transform_utils as T
+
 from omnigibson.robots.fetch import Fetch
-from utils import (
+
+from rekep.utils import (
     bcolors,
     get_config,
     load_functions_from_txt,
@@ -22,10 +23,9 @@ from utils import (
     get_callable_grasping_cost_fn,
     print_opt_debug_dict,
 )
-from real_cam_utils import RealCamera
 
 class Main:
-    def __init__(self, scene_file, visualize=False, use_real_camera=False):
+    def __init__(self, scene_file, visualize=False):
         global_config = get_config(config_path="./configs/config.yaml")
         self.config = global_config['main']
         self.bounds_min = np.array(self.config['bounds_min'])
@@ -39,10 +39,6 @@ class Main:
         self.keypoint_proposer = KeypointProposer(global_config['keypoint_proposer'])
         self.constraint_generator = ConstraintGenerator(global_config['constraint_generator'])
         # initialize environment
-        self.use_real_camera = use_real_camera
-        if use_real_camera:
-            self.real_camera = RealCamera()
-        # Always initialize env for robot control
         self.env = ReKepOGEnv(global_config['env'], scene_file, verbose=False)
         # setup ik solver (for reachability cost)
         assert isinstance(self.env.robot, Fetch), "The IK solver assumes the robot is a Fetch robot"
@@ -61,17 +57,10 @@ class Main:
             self.visualizer = Visualizer(global_config['visualizer'], self.env)
 
     def perform_task(self, instruction, rekep_program_dir=None, disturbance_seq=None):
-        if not self.use_real_camera:
-            self.env.reset()
-            cam_obs = self.env.get_cam_obs()
-        else:
-            # 使用实际相机
-            print("Using real camera")
-            cam_obs = {self.config['vlm_camera']: self.real_camera.get_obs()}
-        
+        self.env.reset()
+        cam_obs = self.env.get_cam_obs()
         rgb = cam_obs[self.config['vlm_camera']]['rgb']
         points = cam_obs[self.config['vlm_camera']]['points']
-        
         mask = cam_obs[self.config['vlm_camera']]['seg']
         # ====================================
         # = keypoint proposal and constraint generation
@@ -286,7 +275,6 @@ if __name__ == "__main__":
     parser.add_argument('--use_cached_query', action='store_true', help='instead of querying the VLM, use the cached query')
     parser.add_argument('--apply_disturbance', action='store_true', help='apply disturbance to test the robustness')
     parser.add_argument('--visualize', action='store_true', help='visualize each solution before executing (NOTE: this is blocking and needs to press "ESC" to continue)')
-    parser.add_argument('--use_real_camera', action='store_true', help='use real RealSense camera instead of simulation')
     args = parser.parse_args()
 
     if args.apply_disturbance:
@@ -381,8 +369,8 @@ if __name__ == "__main__":
 
     task_list = {
         'pen': {
-            'scene_file': './configs/og_scene_file_red_pen.json',
-            'instruction': 'reorient the red pen and drop it upright into the black pen holder',
+            'scene_file': './configs/og_scene_file_pen.json',
+            'instruction': 'reorient the white pen and drop it upright into the black pen holder',
             'rekep_program_dir': './vlm_query/pen',
             'disturbance_seq': {1: stage1_disturbance_seq, 2: stage2_disturbance_seq, 3: stage3_disturbance_seq},
             },
@@ -390,7 +378,7 @@ if __name__ == "__main__":
     task = task_list['pen']
     scene_file = task['scene_file']
     instruction = task['instruction']
-    main = Main(scene_file, visualize=args.visualize, use_real_camera=args.use_real_camera)
+    main = Main(scene_file, visualize=args.visualize)
     main.perform_task(instruction,
                     rekep_program_dir=task['rekep_program_dir'] if args.use_cached_query else None,
                     disturbance_seq=task.get('disturbance_seq', None) if args.apply_disturbance else None)

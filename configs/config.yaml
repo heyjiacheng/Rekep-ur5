@@ -6,8 +6,10 @@ main:
   interpolate_rot_step_size: &interpolate_rot_step_size 0.34  # about 20 degrees
   grasp_depth: 0.10
   constraint_tolerance: 0.10  # for backtracking
-  bounds_min: &bounds_min [-0.45, -0.75, 0.698]
-  bounds_max: &bounds_max [0.10, 0.60, 1.2]
+  # bounds_min: &bounds_min [-0.3, -0.4, 0.5] # how to encode the workspace?
+  # bounds_max: &bounds_max [0.30, 0.4, 0.6]
+  bounds_min: &bounds_min [-2, -2, -2] # how to encode the workspace?
+  bounds_max: &bounds_max [2, 2, 2]
   sdf_voxel_size: 0.01
   vlm_camera: 0
   action_steps_per_iter: 5
@@ -16,7 +18,7 @@ main:
 env:
   video_cache_size: 2000
   og_sim:
-    physics_frequency: 60
+    physics_frequency: 100
     action_frequency: 15
     
   scene:
@@ -69,6 +71,36 @@ env:
       orientation: [ 0.0550,  0.0544,  0.7010,  0.7090]
       resolution: 480
 
+
+perception:
+  cameras:
+    zed2:
+      resolution: [1280, 720]
+      fps: 30
+    depth_pro:
+      resolution: [640, 480]
+      fps: 60
+  fusion:
+    registration_method: "icp"
+    voxel_size: 0.01
+
+actor_critic:
+  actor:
+    model: "gpt-4o"
+    temperature: 0.8
+    max_tokens: 1000
+  critic:
+    semantic_weight: 0.4
+    geometric_weight: 0.6
+
+# policy:
+#   diffusion:
+#     num_steps: 100
+#     beta_schedule: "linear"
+#   rl:
+#     algorithm: "sac"
+#     reward_shaping: True
+
 path_solver:
   opt_pos_step_size: 0.20  # controls the density of control points in the path
   opt_rot_step_size: 0.78  # controls the density of control points in the path
@@ -92,8 +124,8 @@ subgoal_solver:
     maxiter: 200
 
 keypoint_proposer:
-  num_candidates_per_mask: 5
-  min_dist_bt_keypoints: 0.06
+  num_candidates_per_mask: 3
+  min_dist_bt_keypoints: 0.08
   max_mask_ratio: 0.5
   device: *device
   bounds_min: *bounds_min
@@ -101,9 +133,9 @@ keypoint_proposer:
   seed: *seed
 
 constraint_generator:
-  model: gpt-4o
+  model: chatgpt-4o-latest
   temperature: 0.0
-  max_tokens: 2048
+  max_tokens: 4096
 
 visualizer:
   bounds_min: *bounds_min

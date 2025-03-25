@@ -1,8 +1,0 @@
-Width: 640
-Height: 480
-fx: 608.898681640625
-fy: 609.0389404296875
-ppx: 309.48724365234375
-ppy: 249.5274658203125
-Distortion Model: distortion.inverse_brown_conrady
-Distortion Coefficients: [0.0, 0.0, 0.0, 0.0, 0.0]
