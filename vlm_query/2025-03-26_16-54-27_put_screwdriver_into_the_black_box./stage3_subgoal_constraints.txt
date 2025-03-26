@@ -1,0 +1,4 @@
+def stage3_subgoal_constraint1(end_effector, keypoints):
+    """Ensure the screwdriver tip (keypoint 1) is inside the black box (near keypoint 4)."""
+    return np.linalg.norm(keypoints[1] - keypoints[4])
+

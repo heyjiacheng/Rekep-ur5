@@ -196,7 +196,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.instruction is None:
-        args.instruction = "Place the marker on the white cube."
+        args.instruction = "put screwdriver into the black box."
         # args.instruction = "Brew a cup of espresso."
         # args.instruction = "Put down the green package into drawer."
         # args.instruction = "Pour the object in the bowl into the pot."
@@ -204,8 +204,8 @@ if __name__ == "__main__":
         # args.instruction = "Pour the object in the bowl into the pot, the end-effector is already at the bowl's keypoint, the bowl is already aligned with the pot and at the proper height."
     if args.data_path is None:
         args.data_path = "./data/realsense_captures"
-    if args.obj_list is None:
-        args.obj_list = "marker pen . white cube . robot gripper"
+    # if args.obj_list is None:
+    #     args.obj_list = "marker pen . screwdriver . screwdriver handle . black box . robot end-effector"
     if args.visualize is None:
         args.visualize = True
     main = R2D2Vision(visualize=args.visualize)

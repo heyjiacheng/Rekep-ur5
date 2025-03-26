@@ -1,4 +1,4 @@
 def stage1_subgoal_constraint1(end_effector, keypoints):
-    """Align the end-effector with the marker's bottom (keypoint 0)."""
+    """Align the end-effector with the screwdriver handle (keypoint 0)."""
     return np.linalg.norm(end_effector - keypoints[0])
 

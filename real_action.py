@@ -130,7 +130,7 @@ class MainR2D2:
             # Read stage from robot state file
             with open('./robot_state.json', 'r') as f:
                 robot_state = json.load(f)
-                stage = robot_state.get('rekep_stage', 2)  # !!! @Tianyou Default to stage 1 if not found
+                stage = robot_state.get('rekep_stage', 1)  # !!! @Tianyou Default to stage 1 if not found
             # store robot state in rekep_program_dir
             with open(os.path.join(rekep_program_dir, f'robot_state_{stage}.json'), 'w') as f:
                 json.dump(robot_state, f, indent=4)

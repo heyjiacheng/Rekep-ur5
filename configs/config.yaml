@@ -8,8 +8,8 @@ main:
   constraint_tolerance: 0.10  # for backtracking
   # bounds_min: &bounds_min [-0.3, -0.4, 0.5] # how to encode the workspace?
   # bounds_max: &bounds_max [0.30, 0.4, 0.6]
-  bounds_min: &bounds_min [-2, -2, -2] # how to encode the workspace?
-  bounds_max: &bounds_max [2, 2, 2]
+  bounds_min: &bounds_min [-1.0, -1.0, -1.0] # how to encode the workspace?
+  bounds_max: &bounds_max [1.0, 1.0, 1.0]
   sdf_voxel_size: 0.01
   vlm_camera: 0
   action_steps_per_iter: 5
@@ -125,7 +125,8 @@ subgoal_solver:
 
 keypoint_proposer:
   num_candidates_per_mask: 3
-  min_dist_bt_keypoints: 0.08
+  # min_dist_bt_keypoints: 0.08
+  min_dist_bt_keypoints: 0.04
   max_mask_ratio: 0.5
   device: *device
   bounds_min: *bounds_min

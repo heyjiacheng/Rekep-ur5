@@ -105,5 +105,5 @@ release_keypoints = [?, ..., ?]
 ```
 
 ## Query
-Query Task: "Place the marker on the white cube."
+Query Task: "put screwdriver into the black box."
 Query Image:

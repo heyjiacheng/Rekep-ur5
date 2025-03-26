@@ -4,18 +4,37 @@
 Jiacheng Xu @ KTH
 
 ### Usage:
-D435 camera capture keypoints for ABB, UR Robot.
+Reproduce [Rekep](https://arxiv.org/abs/2409.01652) in real robotic arm (UR5) and camera (D435)
 
-# 修改的文件
-## 1. 增加了real_cam_utils.py，用于获取真实摄像头数据,代替og_utils.py.
-## 2. 修改了main.py，用于使用真实摄像头数据
-## 跑以下命令，使用真实摄像头数据
-'''bash
-python main.py --use_real_camera --visualize
-'''
+## Take photo（use D435, available at ./data/realsense_captures）
+```bash
+python real_camera.py
+```
+
+## Run [Dino-X](https://arxiv.org/abs/2411.14347) model to do image segementation. Clustering and flitering keypoints from 2D mask (generatede by Dino-X)
+```bash
+python real_vision.py
+```
+
+## Transfer keypoint position from camera coordinate to world coordinate (robot base coordinate). Generate robotic arm action, based on optimizer (Dual Annealing and SLSQP)
+```bash
+python real_action.py
+```
+
+## Visualization robot coordinate and sequence of end-effector trajectory.
+```bash
+python visualization.py
+```
+
+## Conduct action on UR5 robotic arm
+```bash
+python ur5_action.py
+```
 
 
-# 40 天完成会议论文：任务清单 (Task List)
+
+
+## 任务清单 (Task List)
 
 
 ---

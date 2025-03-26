@@ -137,7 +137,7 @@ def visualize_frames(rekep_program_dir=None, action_file_path=None):
     ee2camera = load_camera_extrinsics(extrinsics_path)
     
     # Get test EE pose
-    ee_pose = np.array([-0.3012316, -0.10365417, 0.47638192, -0.99993463, 0.0058662, 0.00883707, -0.00426884])
+    ee_pose = np.array([-0.30296968, -0.10363895,  0.47230786, -0.99996401,  0.00575873,  0.00470627, -0.00408342])
     
     # Create 3D plot
     fig = plt.figure(figsize=(12, 10))

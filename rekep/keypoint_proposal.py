@@ -73,7 +73,7 @@ class KeypointProposer:
         # exclude keypoints that are outside of the workspace
             # within_space = filter_points_by_bounds(candidate_keypoints, self.bounds_min, self.bounds_max, strict=False)
             # pdb.set_trace()
-            filtered_keypoints = filter_points_by_bounds(candidate_keypoints, self.bounds_min, self.bounds_max, strict=False)
+            filtered_keypoints = filter_points_by_bounds(candidate_keypoints, self.bounds_min, self.bounds_max, strict=True)
             # Create a boolean mask for the filtered keypoints
             within_space = np.array([np.any(np.all(candidate_keypoints[i] == filtered_keypoints, axis=1)) for i in range(len(candidate_keypoints))])
     
@@ -253,7 +253,7 @@ class KeypointProposer:
         return merged_indices
     
 
-    # def _merge_clusters(self, candidate_keypoints, eps=0.5, min_samples=2):
+    # def _merge_clusters(self, candidate_keypoints, eps=1.0, min_samples=1):
     #     points = np.array(candidate_keypoints)
         
     #     dbscan = DBSCAN(eps=eps, min_samples=min_samples)

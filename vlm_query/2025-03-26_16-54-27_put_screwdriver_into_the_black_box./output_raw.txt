@@ -1,0 +1,42 @@
+```python
+# The task involves placing the screwdriver into the black box. This requires:
+# 1. Grasping the screwdriver.
+# 2. Aligning the screwdriver with the black box opening.
+# 3. Inserting the screwdriver into the black box.
+
+num_stages = 3
+
+### stage 1: grasp screwdriver
+def stage1_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the screwdriver handle (keypoint 0)."""
+    return np.linalg.norm(end_effector - keypoints[0])
+
+### stage 2: align screwdriver with black box opening
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """Position the screwdriver tip (keypoint 1) above the black box opening (keypoint 4)."""
+    offsetted_point = keypoints[4] + np.array([0, 0, 0.1])  # 10cm above the box opening
+    return np.linalg.norm(keypoints[1] - offsetted_point)
+
+def stage2_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the screwdriver handle (keypoint 0)."""
+    return get_grasping_cost_by_keypoint_idx(0)
+
+### stage 3: insert screwdriver into black box
+def stage3_subgoal_constraint1(end_effector, keypoints):
+    """Ensure the screwdriver tip (keypoint 1) is inside the black box (near keypoint 4)."""
+    return np.linalg.norm(keypoints[1] - keypoints[4])
+
+def stage3_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the screwdriver handle (keypoint 0)."""
+    return get_grasping_cost_by_keypoint_idx(0)
+
+"""
+Summarize keypoints to be grasped in all grasping stages.
+"""
+grasp_keypoints = [0, -1, -1]
+
+"""
+Summarize at **the end of which stage** the robot should release the keypoints.
+"""
+release_keypoints = [-1, -1, 0]
+```

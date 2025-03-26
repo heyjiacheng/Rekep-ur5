@@ -27,12 +27,12 @@ class GroundingDINO:
         return task.result
     
     def get_dinox(self, image_path, input_prompts):
-        # TEXT_PROMPT = "<prompt_free>" # TODO: fix as prompt-free mode here
+        TEXT_PROMPT = "<prompt_free>" # TODO: fix as prompt-free mode here
         image_url = self.client.upload_file(image_path)
         task = DinoxTask(
             image_url=image_url,
-            # prompts=[TextPrompt(text=TEXT_PROMPT)],
-            prompts=[TextPrompt(text=input_prompts)],
+            prompts=[TextPrompt(text=TEXT_PROMPT)],
+            # prompts=[TextPrompt(text=input_prompts)],
             bbox_threshold=0.25,
             targets=[DetectionTarget.BBox, DetectionTarget.Mask]
         )
