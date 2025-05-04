@@ -176,8 +176,8 @@ class MainR2D2:
                     next_action = np.concatenate([position, rot_vec])
                     print(f"Next action: {next_action}")
                 
-                # precise = len(self.action_queue) == 0
-                self.robot_env.execute_action(next_action, precise=False)
+                precise = len(self.action_queue) == 0
+                self.robot_env.execute_action(next_action, precise=precise)
             if len(self.action_queue) == 0:
                 if self.is_grasp_stage:
                     self.robot_env._execute_grasp_action()
@@ -192,7 +192,7 @@ class MainR2D2:
                     self._return_to_initial_position()
                     self.robot_env._execute_release_action()
                     return
-                self._return_to_initial_position()
+                # self._return_to_initial_position()
                 # progress to next stage
                 self._update_stage(self.stage + 1)
 
@@ -457,7 +457,7 @@ class MainR2D2:
             # Prepare action in the format [x, y, z, rx, ry, rz, gripper]
             action = self.initial_position  # 0 for gripper
             
-            self.robot_env.execute_action(action, precise=True, speed=0.03)
+            self.robot_env.execute_action(action, precise=False, speed=0.08)
             
             print(f"{bcolors.OKGREEN}Robot returned to initial position{bcolors.ENDC}")
         else:

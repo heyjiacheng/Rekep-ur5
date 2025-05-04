@@ -1,5 +1,0 @@
-def stage2_subgoal_constraint1(end_effector, keypoints):
-    """Position the screwdriver tip (keypoint 1) above the black box opening (keypoint 4)."""
-    offsetted_point = keypoints[4] + np.array([0, 0, 0.1])  # 10cm above the box opening
-    return np.linalg.norm(keypoints[1] - offsetted_point)
-

@@ -1,0 +1,6 @@
+def stage4_subgoal_constraint1(end_effector, keypoints):
+    """The screwdriver (keypoint 0) is 5cm above the center of the black box (average of keypoints 2, 3, 4)."""
+    box_center = (keypoints[2] + keypoints[3] + keypoints[4]) / 3
+    offsetted_point = box_center + np.array([0, 0, 0.05])
+    return np.linalg.norm(end_effector - offsetted_point)
+

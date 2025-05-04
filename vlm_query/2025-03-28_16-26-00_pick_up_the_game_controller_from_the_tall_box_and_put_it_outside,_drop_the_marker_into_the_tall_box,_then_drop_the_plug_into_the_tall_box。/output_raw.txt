@@ -1,0 +1,82 @@
+```python
+# The task is: 
+# "Pick up the game controller from the tall box and put it outside, 
+# drop the marker into the tall box, then drop the plug into the tall box."
+
+# This task involves 6 stages:
+# 1. Grasp the game controller (keypoint 5 or 6)
+# 2. Move and place the game controller outside the tall box
+# 3. Grasp the marker (keypoint 0 or 1)
+# 4. Drop the marker into the tall box
+# 5. Grasp the plug (keypoint 2)
+# 6. Drop the plug into the tall box
+
+num_stages = 6
+
+### stage 1 sub-goal constraints (grasp game controller)
+def stage1_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the game controller handle (keypoint 5)."""
+    return np.linalg.norm(end_effector - keypoints[5])
+
+### stage 2 sub-goal constraints (place game controller outside the box)
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """Place the game controller handle (keypoint 5) 10cm outside the tall box (keypoint 4)."""
+    offset = np.array([0.1, 0, 0])  # 10cm in x-direction
+    offsetted_point = keypoints[4] + offset
+    return np.linalg.norm(keypoints[5] - offsetted_point)
+
+### stage 2 path constraints
+def stage2_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the game controller handle (keypoint 5)."""
+    return get_grasping_cost_by_keypoint_idx(5)
+
+### stage 3 sub-goal constraints (grasp marker)
+def stage3_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the marker cap (keypoint 0)."""
+    return np.linalg.norm(end_effector - keypoints[0])
+
+### stage 4 sub-goal constraints (drop marker into tall box)
+def stage4_subgoal_constraint1(end_effector, keypoints):
+    """Place the marker cap (keypoint 0) 10cm above the center of the tall box (average of keypoints 3, 4, 7, 8)."""
+    box_center = (keypoints[3] + keypoints[4] + keypoints[7] + keypoints[8]) / 4
+    offset = np.array([0, 0, 0.1])  # 10cm above
+    offsetted_point = box_center + offset
+    return np.linalg.norm(keypoints[0] - offsetted_point)
+
+### stage 4 path constraints
+def stage4_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the marker cap (keypoint 0)."""
+    return get_grasping_cost_by_keypoint_idx(0)
+
+### stage 5 sub-goal constraints (grasp plug)
+def stage5_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the plug (keypoint 2)."""
+    return np.linalg.norm(end_effector - keypoints[2])
+
+### stage 6 sub-goal constraints (drop plug into tall box)
+def stage6_subgoal_constraint1(end_effector, keypoints):
+    """Place the plug (keypoint 2) 10cm above the center of the tall box (average of keypoints 3, 4, 7, 8)."""
+    box_center = (keypoints[3] + keypoints[4] + keypoints[7] + keypoints[8]) / 4
+    offset = np.array([0, 0, 0.1])  # 10cm above
+    offsetted_point = box_center + offset
+    return np.linalg.norm(keypoints[2] - offsetted_point)
+
+### stage 6 path constraints
+def stage6_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the plug (keypoint 2)."""
+    return get_grasping_cost_by_keypoint_idx(2)
+
+"""
+Summarize keypoints to be grasped in all grasping stages.
+The length of the list should be equal to the number of stages.
+For grasping stage, write the keypoint index. For non-grasping stage, write -1.
+"""
+grasp_keypoints = [5, -1, 0, -1, 2, -1]
+
+"""
+Summarize at **the end of which stage** the robot should release the keypoints.
+The keypoint indices must appear in an earlier stage as defined in `grasp_keypoints`.
+Only release object when it's necessary to complete the task.
+"""
+release_keypoints = [-1, 5, -1, 0, -1, 2]
+```

@@ -15,7 +15,7 @@ class RobotEnv:
         # 初始化机械臂
         self.robot = ur5Robot(ip)
         
-    def execute_action(self, action, precise=False, speed=0.05, acceleration=0.05):
+    def execute_action(self, action, precise=False, speed=0.08, acceleration=0.08):
         """
         Execute a single action with pose change only (without gripper control)
         

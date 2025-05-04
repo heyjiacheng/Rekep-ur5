@@ -26,7 +26,6 @@ from rekep.utils import (
     print_opt_debug_dict,
 )
 
-# from r2d2_vision import R2D2Vision
 '''
 metadata.json
 {
@@ -71,7 +70,7 @@ class MainR2D2:
         torch.manual_seed(self.config['seed'])
         torch.cuda.manual_seed(self.config['seed'])
         # Update the default reset_joint_pos for UR5
-        self.reset_joint_pos = np.array([-0.023413960133687794, -1.9976251761065882, 1.7851085662841797, 4.942904949188232, -1.5486105124102991, -1.5801880995379847])  # UR5 home position
+        self.reset_joint_pos = np.array([-0.023413960133687794, -1.9976251761065882, 1.7851085662841797, 4.942904949188232, -1.5486105124102991, -1.5801880995379847]) 
 
         # self.vision = R2D2Vision(visualize=self.visualize)
 
@@ -170,44 +169,12 @@ class MainR2D2:
             self.first_iter = False
 
 
-            # pdb.set_trace()
-            # Add gripper actions based on stage type
-            # True or False from metadata.json
-            # if self.is_grasp_stage: 
-            #     next_path[-1, 7] = self.env.get_gripper_close_action() # Todo aliagn shape?
-                
-            # elif self.is_release_stage:
-            #     next_path[-1, 7] = self.env.get_gripper_open_action() 
+            # pdb.set_trace() 
                 
             self.all_actions.append(next_path)
 
         # Combine all action sequences
         combined_actions = np.concatenate(self.all_actions, axis=0)
-
-        # # 计算夹爪偏移量 (在保存到action.json前减去偏移)
-        # for i in range(len(combined_actions)):
-        #     # 获取当前位姿 (x, y, z, qx, qy, qz, qw, gripper)
-        #     pose = combined_actions[i]
-        #     position = pose[:3]
-        #     quat = pose[3:7]  # 四元数 [qx, qy, qz, qw]
-            
-        #     # 从四元数创建旋转矩阵
-        #     rotation_matrix = R.from_quat(quat).as_matrix()
-            
-        #     # 应用手性校正
-        #     rot_correct = np.array([
-        #         [-1, 0, 0],
-        #         [0, -1, 0],
-        #         [0, 0, 1]
-        #     ])
-        #     rotation_corrected = rotation_matrix @ rot_correct
-            
-        #     # 计算沿校正后EE z轴的偏移
-        #     z_offset = np.array([0, 0, 0.16])  # z轴方向0.16m
-        #     z_offset_world = rotation_corrected @ z_offset
-            
-        #     # 从位置中减去偏移量
-        #     combined_actions[i, :3] = position - z_offset_world
 
         if self.stage <= self.program_info['num_stages']: 
             # self.env.sleep(2.0)
