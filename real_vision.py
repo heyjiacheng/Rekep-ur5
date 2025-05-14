@@ -139,7 +139,7 @@ class R2D2Vision:
         if 1: # Prompt-free Detection mode
             print(f"\033[92mDebug: Dino-X Detection mode\033[0m")
             gdino = GroundingDINO()
-            predictions = gdino.get_dinox(color_path, obj_list)
+            predictions = gdino.get_dinox(color_path)
             bboxes, masks = gdino.visualize_bbox_and_mask(predictions, color_path, './data/')
             masks = masks.astype(bool)
             masks = np.stack(masks, axis=0)  # Convert list to 3D array

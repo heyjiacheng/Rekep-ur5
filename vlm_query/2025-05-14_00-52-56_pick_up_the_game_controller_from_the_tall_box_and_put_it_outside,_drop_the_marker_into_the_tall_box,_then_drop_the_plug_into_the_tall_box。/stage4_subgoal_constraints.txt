@@ -1,0 +1,5 @@
+def stage4_subgoal_constraint1(end_effector, keypoints):
+    """Move the marker (keypoint 0) to the center of the tall box (average of keypoints 3 and 7)."""
+    box_center = (keypoints[3] + keypoints[7]) / 2
+    return np.linalg.norm(keypoints[0] - box_center)
+
