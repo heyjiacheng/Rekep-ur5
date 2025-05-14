@@ -197,7 +197,8 @@ if __name__ == "__main__":
     
     if args.instruction is None:
         # args.instruction = "put screwdriver into the black box."
-        args.instruction = "Pick up the game controller from the tall box and put it outside, drop the marker into the tall box, then drop the plug into the tall box。"
+        # args.instruction = "Pick up the game controller from the tall box and put it outside, drop the marker into the tall box, then drop the plug into the tall box。"
+        args.instruction = "Drop the marker pen into the blue box."
         # args.instruction = "Brew a cup of espresso."
         # args.instruction = "Put down the green package into drawer."
         # args.instruction = "Pour the object in the bowl into the pot."

@@ -1,6 +1,0 @@
-def stage2_subgoal_constraint1(end_effector, keypoints):
-    """Place the game controller handle (keypoint 5) 10cm outside the tall box (keypoint 4)."""
-    offset = np.array([0.1, 0, 0.2])  # 10cm in x-direction
-    offsetted_point = keypoints[4] + offset
-    return np.linalg.norm(end_effector - offsetted_point)
-

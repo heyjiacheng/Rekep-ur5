@@ -1,0 +1,30 @@
+```python
+# The task is "Drop the marker pen into the blue box."
+# From the image, keypoints 1 and 2 are on the marker pen, and keypoints 3 and 5 are on the blue box.
+# This task involves 2 stages:
+# 1. Grasp the marker pen (grasping must be a separate stage)
+# 2. Drop the marker pen into the blue box
+
+num_stages = 2
+
+### stage 1 sub-goal constraints (grasp marker pen)
+def stage1_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the marker pen body (keypoint 2)."""
+    return np.linalg.norm(end_effector - keypoints[2])
+
+### stage 1 path constraints
+# No path constraints for grasping stage
+
+### stage 2 sub-goal constraints (drop marker pen into blue box)
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """The marker pen (keypoint 2) is inside the blue box (centered at keypoint 5)."""
+    return np.linalg.norm(keypoints[2] - keypoints[5]) - 0.05  # within 5cm of box center
+
+### stage 2 path constraints
+def stage2_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the marker pen (keypoint 2)."""
+    return get_grasping_cost_by_keypoint_idx(2)
+
+grasp_keypoints = [2, -1]
+release_keypoints = [-1, 2]
+```

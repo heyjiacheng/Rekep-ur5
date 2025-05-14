@@ -1,4 +1,0 @@
-def stage1_subgoal_constraint1(end_effector, keypoints):
-    """Align the end-effector with the game controller (keypoint 6)."""
-    return np.linalg.norm(end_effector - keypoints[6])
-

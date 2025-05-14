@@ -1,7 +1,0 @@
-def stage6_subgoal_constraint1(end_effector, keypoints):
-    """Place the plug (keypoint 2) 10cm above the center of the tall box (average of keypoints 3, 4, 7, 8)."""
-    box_center = (keypoints[3] + keypoints[4] + keypoints[7] + keypoints[8]) / 4
-    offset = np.array([0, 0, 0.25])  # 10cm above
-    offsetted_point = box_center + offset
-    return np.linalg.norm(end_effector - offsetted_point)
-
