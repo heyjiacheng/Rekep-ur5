@@ -355,6 +355,7 @@ class MainR2D2:
         # 第一步：相机坐标系 → end effector坐标系
         # 加载相机到end effector的外参
         ee2camera = self.load_camera_extrinsics()
+        print("ee2cam:", ee2camera)
         
         # 转换为齐次坐标
         keypoints_homogeneous = np.hstack((keypoints, np.ones((keypoints.shape[0], 1))))
@@ -383,10 +384,15 @@ class MainR2D2:
         # Camera frame
         camera_frame_incorrect = base2ee @ ee2camera
 
+    #     camera_axes_correction = np.array([
+    #         [0, 0, 1],  # New x-axis is old z-axis
+    #         [-1, 0, 0], # New y-axis is old x-axis
+    #         [0, -1, 0]  # New z-axis is negative old y-axis
+    # ])
         camera_axes_correction = np.array([
-            [0, 0, 1],  # New x-axis is old z-axis
-            [-1, 0, 0], # New y-axis is old x-axis
-            [0, -1, 0]  # New z-axis is negative old y-axis
+            [1, 0, 0],  # New x-axis is old z-axis
+            [0, 1, 0], # New y-axis is old x-axis
+            [0, 0, 1]  # New z-axis is negative old y-axis
     ])
 
         # Apply the correction to the camera frame rotation part
@@ -424,7 +430,7 @@ class MainR2D2:
         return intrinsics_matrix, depth_scale
 
     def load_camera_extrinsics(self):
-        extrinsics_path = '/home/xu/.ros/easy_handeye/easy_handeye_eye_on_hand.yaml'
+        extrinsics_path = 'cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml'
         with open(extrinsics_path, 'r') as f:
             extrinsics_data = yaml.safe_load(f)
         
