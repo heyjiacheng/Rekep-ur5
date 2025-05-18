@@ -254,9 +254,9 @@ class MainR2D2:
         
         # 应用手性校正
         rot_correct = np.array([
-            [-1, 0, 0],
+            [1, 0, 0],
             [0, -1, 0],
-            [0, 0, 1]
+            [0, 0, -1]
         ])
         rotation_corrected = rotation_matrix @ rot_correct
         
@@ -370,9 +370,9 @@ class MainR2D2:
         
         # Apply handedness correction - reverse X and Z axes
         rot_correct = np.array([
-            [-1, 0, 0],
+            [1, 0, 0],
             [0, -1, 0],
-            [0, 0, 1]
+            [0, 0, -1]
         ])
         rotation_corrected = rotation @ rot_correct
 

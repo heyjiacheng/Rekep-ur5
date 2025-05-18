@@ -65,9 +65,9 @@ def transform_keypoints_to_world(keypoints, ee_pose, ee2camera):
     
     # Apply handedness correction - reverse X and Z axes
     rot_correct = np.array([
-        [-1, 0, 0],
+        [1, 0, 0],
         [0, -1, 0],
-        [0, 0, 1]
+        [0, 0, -1]
     ])
     rotation_corrected = rotation @ rot_correct
     
@@ -80,10 +80,15 @@ def transform_keypoints_to_world(keypoints, ee_pose, ee2camera):
     camera_frame_incorrect = base2ee_original @ ee2camera
     
     # Create camera axes correction matrix
+    # camera_axes_correction = np.array([
+    #     [0, 0, 1],  # New x-axis is old z-axis
+    #     [-1, 0, 0], # New y-axis is old x-axis
+    #     [0, -1, 0]  # New z-axis is negative old y-axis
+    # ])
     camera_axes_correction = np.array([
-        [0, 0, 1],  # New x-axis is old z-axis
-        [-1, 0, 0], # New y-axis is old x-axis
-        [0, -1, 0]  # New z-axis is negative old y-axis
+        [1, 0, 0],  # New x-axis is old z-axis
+        [0, 1, 0], # New y-axis is old x-axis
+        [0, 0, 1]  # New z-axis is negative old y-axis
     ])
     
     # Apply the correction to the camera frame rotation part
@@ -133,11 +138,11 @@ def load_action_sequence(action_file_path):
 def visualize_frames(rekep_program_dir=None, action_file_path=None):
     """Visualize the base, EE, and camera coordinate frames with the correct interpretation"""
     # Load camera extrinsics
-    extrinsics_path = '/home/xu/.ros/easy_handeye/easy_handeye_eye_on_hand.yaml'
+    extrinsics_path = 'cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml'
     ee2camera = load_camera_extrinsics(extrinsics_path)
     
     # Get test EE pose
-    ee_pose = np.array([-0.3029407, -0.10364389, 0.47234771, -0.99996402, 0.00576533, 0.00473004, -0.00404257])
+    ee_pose = np.array([-0.26015666, -0.16468608,  0.57478494,  0.03123733, -0.00634068,  0.00497733, 0.99947949])
     
     # Create 3D plot
     fig = plt.figure(figsize=(12, 10))
@@ -153,9 +158,9 @@ def visualize_frames(rekep_program_dir=None, action_file_path=None):
     
     # Apply handedness correction - reverse X and Z axes
     rot_correct = np.array([
-        [-1, 0, 0],
+        [1, 0, 0],
         [0, -1, 0],
-        [0, 0, 1]
+        [0, 0, -1]
     ])
     rotation_corrected = rotation @ rot_correct
     
@@ -177,10 +182,15 @@ def visualize_frames(rekep_program_dir=None, action_file_path=None):
     camera_frame_incorrect = base2ee_original @ ee2camera
     
     # Create camera axes correction matrix
+    # camera_axes_correction = np.array([
+    #     [0, 0, 1],  # New x-axis is old z-axis
+    #     [-1, 0, 0], # New y-axis is old x-axis
+    #     [0, -1, 0]  # New z-axis is negative old y-axis
+    # ])
     camera_axes_correction = np.array([
-        [0, 0, 1],  # New x-axis is old z-axis
-        [-1, 0, 0], # New y-axis is old x-axis
-        [0, -1, 0]  # New z-axis is negative old y-axis
+        [1, 0, 0],  # New x-axis is old z-axis
+        [0, 1, 0], # New y-axis is old x-axis
+        [0, 0, 1]  # New z-axis is negative old y-axis
     ])
     
     # Apply the correction to the camera frame rotation part
@@ -288,7 +298,7 @@ def visualize_frames(rekep_program_dir=None, action_file_path=None):
 
 def main():
     parser = argparse.ArgumentParser(description='Visualize coordinate frames and keypoints')
-    parser.add_argument('--extrinsics', type=str, default='/home/xu/.ros/easy_handeye/easy_handeye_eye_on_hand.yaml',
+    parser.add_argument('--extrinsics', type=str, default='cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml',
                       help='Path to camera extrinsics YAML file')
     parser.add_argument('--rekep_dir', type=str, help='Path to ReKep program directory containing metadata.json')
     parser.add_argument('--action_file', type=str, help='Path to action.json file containing robot trajectory')
