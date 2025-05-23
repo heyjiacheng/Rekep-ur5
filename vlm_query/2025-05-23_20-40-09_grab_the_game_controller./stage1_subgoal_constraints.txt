@@ -1,6 +1,6 @@
 def stage1_subgoal_constraint1(end_effector, keypoints):
-    """Align the end-effector with the center of the game controller (keypoint 0)."""
-    target_point = keypoints[0]
+    """Align the end-effector with the center of the game controller (keypoint 1)."""
+    target_point = keypoints[1]
     cost = np.linalg.norm(end_effector - target_point)
     return cost
 

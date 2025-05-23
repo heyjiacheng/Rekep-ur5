@@ -1,4 +1,0 @@
-def stage2_subgoal_constraint1(end_effector, keypoints):
-    """The marker pen (keypoint 2) is inside the blue box (centered at keypoint 5)."""
-    return np.linalg.norm(keypoints[2] - keypoints[5]) - 0.05  # within 5cm of box center
-
