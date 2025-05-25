@@ -248,11 +248,8 @@ class PathSolver:
         else:
             from_scratch = True
             interp_poses = linear_interpolate_poses(start_pose, end_pose, num_control_points)  # [num_control_points, 6]
-            print(f"Interp poses: {interp_poses}")
             init_sol = interp_poses[1:-1].flatten()  # [num_control_points-2, 6]
-            print(f"Init sol: {init_sol}")
             init_sol = normalize_vars(init_sol, og_bounds)
-            print(f"Init sol: {init_sol}")
         # clip the initial guess to be within bounds
         for i, (b_min, b_max) in enumerate(bounds):
             init_sol[i] = np.clip(init_sol[i], b_min, b_max)
@@ -260,9 +257,6 @@ class PathSolver:
         # = other setup
         # ====================================
         collision_points_centered, keypoints_centered = self._center_collision_points_and_keypoints(start_pose, collision_points, keypoints, keypoint_movable_mask)
-        print(f"Start pose: {start_pose}")
-        print(f"End pose: {end_pose}")
-        print(f"Init sol: {init_sol}")
         aux_args = (og_bounds,
                     start_pose,
                     end_pose,

@@ -143,7 +143,7 @@ class RobotController:
         # Get scene information
         scene_keypoints = self.env.get_keypoint_positions()
         world_keypoints = self._transform_keypoints_to_world(scene_keypoints)
-        
+        print(f"World keypoints: {world_keypoints}")
         # Set state variables
         self.keypoints = np.concatenate([[self._get_ee_position()], world_keypoints], axis=0)
         self.curr_ee_pose = self._get_ee_pose()

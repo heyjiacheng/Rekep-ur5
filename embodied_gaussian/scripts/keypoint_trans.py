@@ -16,19 +16,30 @@ def transform_pts(points_B: np.ndarray, T_BW: np.ndarray) -> np.ndarray:
     return (T_BW @ homo_B.T).T[:, :3]  # (N,3)
 
 
-def replace_keypoints_with_nearest(
+def find_keypoint_bindings(
     json_path: str | Path,
     init_keypoints,
     X_WB_is_B2W: bool = False,
 ):
     """
-    把 init_keypoints 替换成与之最近的 Gaussian/Particle 中心点（世界坐标系下）。
+    第一次运行：找到每个关键点对应的最近邻点索引，建立绑定关系。
 
     Returns
     -------
+    bindings : list of dict
+        每个关键点的绑定信息，格式为：
+        [
+            {"type": "gaussian", "index": 123},  # 绑定到第123个高斯点
+            {"type": "particle", "index": 45},   # 绑定到第45个粒子点
+            ...
+        ]
     new_keypoints : ndarray, shape (N,3)
-    # idx_info     : ndarray, shape (N,), int  (可选) <0=Gaussian, ≥0=Particle 索引>
+        替换后的关键点坐标
     """
+    # 处理空输入的情况
+    if len(init_keypoints) == 0:
+        return [], np.empty((0, 3), dtype=np.float32)
+    
     # ---------- 0. 读取 & 变换 ----------
     data, X_WB = load_tblock(json_path)
     T_BW = X_WB if X_WB_is_B2W else np.linalg.inv(X_WB)  # (4,4)
@@ -45,6 +56,11 @@ def replace_keypoints_with_nearest(
 
     # ---------- 1. 对每个关键点找最近邻 ----------
     init_pts = np.asarray(init_keypoints, dtype=np.float32)  # (N,3)
+    
+    # 确保 init_pts 是二维数组
+    if init_pts.ndim == 1:
+        init_pts = init_pts.reshape(1, -1)
+    
     # (N,1,3) - (1,M,3) => (N,M,3) => 求范数 (N,M)
     diffs = init_pts[:, None, :] - candidates[None, :, :]
     dists = np.linalg.norm(diffs, axis=-1)               # (N, Ng+Np)
@@ -52,10 +68,104 @@ def replace_keypoints_with_nearest(
     nearest_idx = dists.argmin(axis=1)                   # (N,)
     new_keypoints = candidates[nearest_idx]              # (N,3)
 
-    # 如果想知道命中了高斯(返回 -i-1) 还是粒子(返回 j)，可取消下一行注释
-    # idx_info = np.where(nearest_idx < split, -(nearest_idx + 1), nearest_idx - split)
+    # ---------- 2. 生成绑定信息 ----------
+    bindings = []
+    for idx in nearest_idx:
+        if idx < split:
+            # 绑定到高斯点
+            bindings.append({"type": "gaussian", "index": int(idx)})
+        else:
+            # 绑定到粒子点
+            bindings.append({"type": "particle", "index": int(idx - split)})
 
-    return new_keypoints  # , idx_info
+    return bindings, new_keypoints
+
+
+def update_keypoints_from_bindings(
+    json_path: str | Path,
+    bindings: list,
+    X_WB_is_B2W: bool = False,
+):
+    """
+    根据已有的绑定关系更新关键点坐标。
+
+    Parameters
+    ----------
+    json_path : str | Path
+        JSON文件路径
+    bindings : list of dict
+        关键点绑定信息，由 find_keypoint_bindings 返回
+    X_WB_is_B2W : bool
+        X_WB矩阵的含义
+
+    Returns
+    -------
+    updated_keypoints : ndarray, shape (N,3)
+        更新后的关键点坐标
+    """
+    if len(bindings) == 0:
+        return np.empty((0, 3), dtype=np.float32)
+    
+    # ---------- 0. 读取 & 变换 ----------
+    data, X_WB = load_tblock(json_path)
+    T_BW = X_WB if X_WB_is_B2W else np.linalg.inv(X_WB)  # (4,4)
+
+    g_means_B = np.asarray(data["gaussians"]["means"], dtype=np.float32)  # (Ng,3)
+    p_means_B = np.asarray(data["particles"]["means"], dtype=np.float32)  # (Np,3)
+
+    g_means_W = transform_pts(g_means_B, T_BW)  # (Ng,3)
+    p_means_W = transform_pts(p_means_B, T_BW)  # (Np,3)
+
+    # ---------- 1. 根据绑定信息获取对应点坐标 ----------
+    updated_keypoints = []
+    for binding in bindings:
+        if binding["type"] == "gaussian":
+            idx = binding["index"]
+            if idx < len(g_means_W):
+                updated_keypoints.append(g_means_W[idx])
+            else:
+                raise IndexError(f"高斯点索引 {idx} 超出范围 (总数: {len(g_means_W)})")
+        elif binding["type"] == "particle":
+            idx = binding["index"]
+            if idx < len(p_means_W):
+                updated_keypoints.append(p_means_W[idx])
+            else:
+                raise IndexError(f"粒子点索引 {idx} 超出范围 (总数: {len(p_means_W)})")
+        else:
+            raise ValueError(f"未知的绑定类型: {binding['type']}")
+    
+    return np.array(updated_keypoints, dtype=np.float32)
+
+
+def replace_keypoints_with_nearest(
+    json_path: str | Path,
+    init_keypoints,
+    X_WB_is_B2W: bool = False,
+):
+    """
+    把 init_keypoints 替换成与之最近的 Gaussian/Particle 中心点（世界坐标系下）。
+    
+    这是原有的函数，保持向后兼容性。
+    如果需要后续更新功能，建议使用 find_keypoint_bindings + update_keypoints_from_bindings。
+
+    Returns
+    -------
+    new_keypoints : ndarray, shape (N,3)
+    """
+    bindings, new_keypoints = find_keypoint_bindings(json_path, init_keypoints, X_WB_is_B2W)
+    return new_keypoints
+
+
+def save_bindings(bindings: list, save_path: str | Path):
+    """保存绑定信息到JSON文件"""
+    with open(save_path, "w", encoding="utf-8") as f:
+        json.dump(bindings, f, indent=2, ensure_ascii=False)
+
+
+def load_bindings(load_path: str | Path) -> list:
+    """从JSON文件加载绑定信息"""
+    with open(load_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 # -------------------- 示例调用 --------------------
@@ -73,9 +183,32 @@ if __name__ == "__main__":
         [0.42175916765330773, -0.14394309998053592, 0.835],
     ]
 
-    new_kpts = replace_keypoints_with_nearest(
-        "objects/tblock.json",
+    print("=== 第一次运行：建立绑定关系 ===")
+    bindings, new_kpts = find_keypoint_bindings(
+        "embodied_gaussian/objects/tblock.json",
         init_keypoint_positions,
-        X_WB_is_B2W=False,   # ← 根据实际含义调整
+        X_WB_is_B2W=False,
     )
-    print("替换后的关键点坐标：\n", new_kpts)
+    
+    print("绑定信息：")
+    for i, binding in enumerate(bindings):
+        print(f"  关键点{i}: {binding}")
+    
+    print(f"\n替换后的关键点坐标：\n{new_kpts}")
+    
+    # 保存绑定信息
+    save_bindings(bindings, "keypoint_bindings.json")
+    print("\n绑定信息已保存到 keypoint_bindings.json")
+    
+    print("\n=== 后续更新：根据绑定关系更新坐标 ===")
+    # 模拟后续更新（实际使用时JSON文件内容会变化）
+    updated_kpts = update_keypoints_from_bindings(
+        "embodied_gaussian/objects/tblock.json",
+        bindings,
+        X_WB_is_B2W=False,
+    )
+    
+    print(f"更新后的关键点坐标：\n{updated_kpts}")
+    
+    # 验证两次结果应该相同（因为JSON文件没变）
+    print(f"\n坐标是否一致: {np.allclose(new_kpts, updated_kpts)}")
