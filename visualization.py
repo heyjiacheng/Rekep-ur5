@@ -89,25 +89,18 @@ class RobotVisualizer:
         if label:
             ax.text(*origin, label, fontsize=12)
     
-    def _transform_keypoints_to_world(self, keypoints, ee_pose):
-        """Transform keypoints from camera to world coordinates"""
+    def _transform_keypoints_to_world(self, keypoints, ee_pose=None):
+        """Transform keypoints from camera to world coordinates (eye-to-hand setup)"""
         keypoints = np.array(keypoints)
+        
+        # Load camera extrinsics (now base2camera)
+        base2camera = self.ee2camera  # Reuse the loaded extrinsics, now represents base2camera
         
         # Convert to homogeneous coordinates
         keypoints_homogeneous = np.hstack((keypoints, np.ones((keypoints.shape[0], 1))))
         
-        # Create end effector transformation matrix
-        position = ee_pose[:3]
-        quat = np.array([ee_pose[3], ee_pose[4], ee_pose[5], ee_pose[6]])  # [w,x,y,z] -> [x,y,z,w]
-        rotation = R.from_quat(quat).as_matrix()
-        
-        base2ee = np.eye(4)
-        base2ee[:3, :3] = rotation
-        base2ee[:3, 3] = position
-        
-        # Transform through camera frame
-        camera_frame = base2ee @ self.ee2camera
-        world_coords = (camera_frame @ keypoints_homogeneous.T).T
+        # Apply transformation directly (camera to world/base)
+        world_coords = (base2camera @ keypoints_homogeneous.T).T
         
         # Convert back to 3D coordinates
         return world_coords[:, :3] / world_coords[:, 3, np.newaxis]
@@ -211,9 +204,9 @@ class RobotVisualizer:
         # Transform keypoints to world coordinates
         keypoints_world = self._transform_keypoints_to_world(keypoints_camera, ee_pose)
         
-        # Visualize keypoints in camera frame
+        # Visualize keypoints in camera frame (using base2camera directly)
         keypoints_homogeneous = np.hstack((keypoints_camera, np.ones((len(keypoints_camera), 1))))
-        keypoints_in_world = (camera_frame @ keypoints_homogeneous.T).T
+        keypoints_in_world = (self.ee2camera @ keypoints_homogeneous.T).T
         keypoints_in_world = keypoints_in_world[:, :3] / keypoints_in_world[:, 3, np.newaxis]
         
         # Plot keypoints

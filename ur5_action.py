@@ -404,29 +404,14 @@ class UR5Controller:
         """Transform keypoints from camera coordinate system to world coordinate system"""
         keypoints = np.array(keypoints)
         
-        # Load camera extrinsics
-        ee2camera = self._load_camera_extrinsics()
+        # Load camera extrinsics (now base2camera)
+        base2camera = self._load_camera_extrinsics()
         
         # Convert to homogeneous coordinates
         keypoints_homogeneous = np.hstack((keypoints, np.ones((keypoints.shape[0], 1))))
         
-        # Get current end effector pose
-        ee_pose = self._get_ee_pose()
-        print(f"EE pose: {ee_pose}")
-        
-        quat = np.array([ee_pose[3], ee_pose[4], ee_pose[5], ee_pose[6]])  # [qx, qy, qz, qw]
-        rotation = R.from_quat(quat).as_matrix()
-        
-        # Create transformation matrix
-        base2ee = np.eye(4)
-        base2ee[:3, :3] = rotation
-        base2ee[:3, 3] = ee_pose[:3]
-        
-        # Camera frame transformation
-        camera_frame = base2ee @ ee2camera
-        
-        # Apply transformation
-        base_coords_homogeneous = (camera_frame @ keypoints_homogeneous.T).T
+        # Apply transformation directly (camera to world/base)
+        base_coords_homogeneous = (base2camera @ keypoints_homogeneous.T).T
         
         # Convert to non-homogeneous coordinates
         return base_coords_homogeneous[:, :3] / base_coords_homogeneous[:, 3, np.newaxis]
