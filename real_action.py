@@ -88,20 +88,13 @@ class RobotController:
 
     def _run_stage(self, rekep_program_dir):
         """Run a single stage"""
-        # Load program info and constraints
         self.program_info = self._load_program_info(rekep_program_dir)
         self.constraint_fns = self._load_constraints(rekep_program_dir)
         
-        # Get current stage
         stage = self._get_current_stage()
-        
-        # Setup environment state
         self._setup_environment_state()
-        
-        # Update stage status
         self._update_stage(stage)
         
-        # Generate and execute actions
         actions = self._generate_actions()
         self._save_actions(actions, stage, rekep_program_dir)
 
@@ -300,25 +293,14 @@ class RobotController:
         """Transform keypoints from camera coordinate system to world coordinate system"""
         keypoints = np.array(keypoints)
         
-        # Load camera extrinsics
-        ee2camera = self._load_camera_extrinsics()
+        # Load camera extrinsics (now base2camera)
+        base2camera = self._load_camera_extrinsics()
         
         # Convert to homogeneous coordinates
         keypoints_homogeneous = np.hstack((keypoints, np.ones((keypoints.shape[0], 1))))
         
-        # Get end effector pose
-        ee_pose = self._get_ee_pose()
-        quat = np.array([ee_pose[3], ee_pose[4], ee_pose[5], ee_pose[6]])
-        rotation = R.from_quat(quat).as_matrix()
-        
-        # Create transformation matrix
-        base2ee = np.eye(4)
-        base2ee[:3, :3] = rotation
-        base2ee[:3, 3] = ee_pose[:3]
-        
-        # Apply transformation
-        camera_frame = base2ee @ ee2camera
-        base_coords_homogeneous = (camera_frame @ keypoints_homogeneous.T).T
+        # Apply transformation directly (camera to world/base)
+        base_coords_homogeneous = (base2camera @ keypoints_homogeneous.T).T
         
         # Convert to non-homogeneous coordinates
         return base_coords_homogeneous[:, :3] / base_coords_homogeneous[:, 3, np.newaxis]
