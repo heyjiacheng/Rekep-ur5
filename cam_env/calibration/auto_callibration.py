@@ -360,7 +360,7 @@ if __name__ == '__main__':
     auto_callibration = AutoCallibrator(
         pc_id=2,
         camera_position='global',
-        chessboard_shape=(5,8),
+        chessboard_shape=(8,8),
         square_size=0.02611,
         save_file='./auto_callibration.json',
         window_name='auto_callibration'

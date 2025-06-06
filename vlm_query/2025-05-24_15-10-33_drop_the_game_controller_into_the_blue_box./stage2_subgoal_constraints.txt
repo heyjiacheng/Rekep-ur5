@@ -1,8 +1,0 @@
-def stage2_subgoal_constraint1(end_effector, keypoints):
-    """The game controller (keypoint 2) is 5cm above the center of the blue box (average of keypoints 4, 5, 6)."""
-    box_center = (keypoints[4] + keypoints[5] + keypoints[6]) / 3
-    offsetted_point = box_center + np.array([0, 0, 0.05])  # 5cm above
-    controller_kp = keypoints[2]
-    cost = np.linalg.norm(controller_kp - offsetted_point)
-    return cost
-
