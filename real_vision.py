@@ -86,8 +86,16 @@ class R2D2Vision:
                 self.ppx = 309.49   # principal point x
                 self.ppy = 249.53   # principal point y
                 
-        intrinsics = D435_Intrinsics()
-        depth_scale = 0.001  # Default depth scale (1mm)
+        class D405_Intrinsics:
+            def __init__(self):
+                self.fx = 430.94  # focal length x
+                self.fy = 430.46  # focal length y
+                self.ppx = 315.77   # principal point x
+                self.ppy = 243.72   # principal point y
+
+        intrinsics = D405_Intrinsics()
+        # depth_scale = 0.001  # D435 Default depth scale (1mm)
+        depth_scale = 9.999999747378752e-05
 
         return intrinsics, depth_scale
 
@@ -199,8 +207,8 @@ if __name__ == "__main__":
         # args.instruction = "put screwdriver into the black box."
         # args.instruction = "Pick up the game controller from the tall box and put it outside, drop the marker into the tall box, then drop the plug into the tall box。"
         # args.instruction = "Drop the marker pen into the blue box."
-        args.instruction = "Drop the game controller into the blue box."
-        # args.instruction = "Grab the game controller."
+        # args.instruction = "Drop the game controller into the blue box."
+        args.instruction = "Grab the game controller."
         # args.instruction = "Brew a cup of espresso."
         # args.instruction = "Put down the green package into drawer."
         # args.instruction = "Pour the object in the bowl into the pot."

@@ -19,35 +19,38 @@ os.makedirs(save_dir, exist_ok=True)
 pipeline = rs.pipeline()
 config = rs.config()
 
-# 指定要使用的相机序列号
-target_serial = "819612070593"
-config.enable_device(target_serial)
-
-# Get device product line for setting a supporting resolution
+# --- Get Device Information ---
+# Resolve the configuration to get the pipeline profile and device
+print("Resolving pipeline configuration...")
 pipeline_wrapper = rs.pipeline_wrapper(pipeline)
 pipeline_profile = config.resolve(pipeline_wrapper)
 device = pipeline_profile.get_device()
-serial_number = device.get_info(rs.camera_info.serial_number)
-print(f"相机序列号: {serial_number}")
 
-    
+# --- Get and Print Device Info ---
 device_product_line = str(device.get_info(rs.camera_info.product_line))
+serial_number = str(device.get_info(rs.camera_info.serial_number))
+print(f"Device Product Line: {device_product_line}")
+print(f"Device Serial Number: {serial_number}")
 
-found_rgb = False
-for s in device.sensors:
-    if s.get_info(rs.camera_info.name) == 'RGB Camera':
-        found_rgb = True
-        break
-if not found_rgb:
-    print("The demo requires Depth camera with Color sensor")
-    exit(0)
-
-config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-
-config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+# --- Configure Streams ---
+# Try enabling the streams directly.
+# The D405 might have different supported resolutions/formats for color.
+try:
+    print("Attempting to enable streams...")
+    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    print("Streams enabled in config.")
+except RuntimeError as e:
+    print(f"Error enabling streams: {e}")
+    print("The requested resolution/format might not be supported by the D405.")
+    print("Common D405 color modes might be 480x270 or use YUYV format.")
+    print("Check supported modes using RealSense Viewer or API.")
+    exit(1)
 
 # Start streaming
+print("Starting pipeline...")
 pipeline.start(config)
+print("Pipeline started.")
 
 # 获取相机内参
 profile = pipeline.get_active_profile()
@@ -65,20 +68,31 @@ print("\n深度相机内参:")
 print(f"分辨率: {depth_intrinsics.width}x{depth_intrinsics.height}")
 print(f"焦距: fx={depth_intrinsics.fx:.2f}, fy={depth_intrinsics.fy:.2f}")
 print(f"主点: ppx={depth_intrinsics.ppx:.2f}, ppy={depth_intrinsics.ppy:.2f}")
+print(f"畸变模型: {depth_intrinsics.model}")
+print(f"畸变系数: {depth_intrinsics.coeffs}")
 
 print("\n彩色相机内参:")
 print(f"分辨率: {color_intrinsics.width}x{color_intrinsics.height}")
 print(f"焦距: fx={color_intrinsics.fx:.2f}, fy={color_intrinsics.fy:.2f}")
 print(f"主点: ppx={color_intrinsics.ppx:.2f}, ppy={color_intrinsics.ppy:.2f}")
+print(f"畸变模型: {color_intrinsics.model}")
+print(f"畸变系数: {color_intrinsics.coeffs}")
 
 try:
+    frame_count = 0
     while True:
         # Wait for a coherent pair of frames: depth and color
-        frames = pipeline.wait_for_frames()
+        frames = pipeline.wait_for_frames(timeout_ms=5000)  # Added timeout
+        if not frames:
+            print("Timed out waiting for frames.")
+            continue
+            
         depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
         if not depth_frame or not color_frame:
             continue
+
+        frame_count += 1
 
         # Convert images to numpy arrays
         depth_image = np.asanyarray(depth_frame.get_data())
@@ -102,10 +116,11 @@ try:
         cv2.imshow('RealSense', images)
         
         # 键盘控制
-        key = cv2.waitKey(1)
+        key = cv2.waitKey(1) & 0xFF  # Masking for cross-platform compatibility
         
         # ESC键退出
         if key == 27:
+            print("ESC key pressed, exiting.")
             break
             
         # 按's'键保存图片
@@ -121,50 +136,18 @@ try:
             depth_path = os.path.join(save_dir, 'varied_camera_depth.npy')
             np.save(depth_path, depth_image)  # 保存原始深度数据
             
-            # 保存深度可视化图像（用于查看）
-            # depth_vis_path = os.path.join(save_dir, f'depth_vis_{timestamp}.png')
-            # cv2.imwrite(depth_vis_path, depth_colormap)
-            
-            # 保存组合图像
-            # combined_path = os.path.join(save_dir, f'combined_{timestamp}.png')
-            # cv2.imwrite(combined_path, images)
-            
-            # 保存内参信息
-            # intrinsics_dir = os.path.join(save_dir, "intrinsics")
-            # os.makedirs(intrinsics_dir, exist_ok=True)
+            print(f'\n图片已保存到 {save_dir}:')
+            print(f'- RGB图像: varied_camera_raw.png')
+            print(f'- 深度数据: varied_camera_depth.npy')
 
-            # 保存深度内参
-            # depth_intrin_path = os.path.join(intrinsics_dir, f'depth_intrin_{timestamp}.txt')
-            # with open(depth_intrin_path, 'w') as f:
-            #     f.write(f"Width: {depth_intrinsics.width}\n")
-            #     f.write(f"Height: {depth_intrinsics.height}\n")
-            #     f.write(f"fx: {depth_intrinsics.fx}\n")
-            #     f.write(f"fy: {depth_intrinsics.fy}\n")
-            #     f.write(f"ppx: {depth_intrinsics.ppx}\n")
-            #     f.write(f"ppy: {depth_intrinsics.ppy}\n")
-            #     f.write(f"Distortion Model: {depth_intrinsics.model}\n")
-            #     f.write(f"Distortion Coefficients: {depth_intrinsics.coeffs}\n")
-
-            # 保存彩色内参
-            # color_intrin_path = os.path.join(intrinsics_dir, f'color_intrin_{timestamp}.txt')
-            # with open(color_intrin_path, 'w') as f:
-            #     f.write(f"Width: {color_intrinsics.width}\n")
-            #     f.write(f"Height: {color_intrinsics.height}\n")
-            #     f.write(f"fx: {color_intrinsics.fx}\n")
-            #     f.write(f"fy: {color_intrinsics.fy}\n")
-            #     f.write(f"ppx: {color_intrinsics.ppx}\n")
-            #     f.write(f"ppy: {color_intrinsics.ppy}\n")
-            #     f.write(f"Distortion Model: {color_intrinsics.model}\n")
-            #     f.write(f"Distortion Coefficients: {color_intrinsics.coeffs}\n")
-
-            print(f'图片已保存到 {save_dir}:')
-            print(f'- RGB图像: color_{timestamp}.png')
-            print(f'- 深度数据: depth_{timestamp}.npy')
-            # print(f'- 深度可视化图像: depth_vis_{timestamp}.png')
-            # print(f'- 组合图像: combined_{timestamp}.png')
-            # print(f'- 深度内参文件: depth_intrin_{timestamp}.txt')
-            # print(f'- 彩色内参文件: color_intrin_{timestamp}.txt')
+except Exception as e:
+    print(f"An error occurred during streaming: {e}")
+    import traceback
+    traceback.print_exc()  # Print detailed traceback for debugging
 
 finally:
     # Stop streaming
+    print("Stopping pipeline...")
     pipeline.stop()
+    cv2.destroyAllWindows()
+    print("Pipeline stopped and windows closed.")
