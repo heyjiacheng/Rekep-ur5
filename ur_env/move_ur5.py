@@ -115,11 +115,11 @@ if __name__ == "__main__":
     ## get pose and joint angle
     pose, joint = get_robot_pose_and_joints(UR5_IP)
 
-    # # send a psoe to robot controller
-    # try:
-    #     # Example target pose to send to the robot
-    #     target_pose = [-0.4196, -0.1042, 0.67, math.pi, 0.00, 0.00]
-    #     send_pose_to_robot(UR5_IP, target_pose)
+    # send a psoe to robot controller
+    try:
+        # Example target pose to send to the robot
+        target_pose = [-0.1096, -0.1042, 0.67, math.pi, 0.00, 0.00]
+        send_pose_to_robot(UR5_IP, target_pose)
 
-    # except KeyboardInterrupt:
-    #     print("Program interrupted.")
+    except KeyboardInterrupt:
+        print("Program interrupted.")
