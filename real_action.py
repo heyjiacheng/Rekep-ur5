@@ -4,7 +4,6 @@ import json
 import os
 import sys
 from scipy.spatial.transform import Rotation as R
-import yaml
 from ur_env.rotations import pose2quat
 import argparse
 
@@ -308,6 +307,7 @@ class RobotController:
         
         # Get end effector pose
         ee_pose = self._get_ee_pose()
+        print("eepose", ee_pose)
         quat = np.array([ee_pose[3], ee_pose[4], ee_pose[5], ee_pose[6]])
         rotation = R.from_quat(quat).as_matrix()
         
@@ -324,29 +324,24 @@ class RobotController:
         return base_coords_homogeneous[:, :3] / base_coords_homogeneous[:, 3, np.newaxis]
 
     def _load_camera_extrinsics(self):
-        """Load camera extrinsics"""
-        extrinsics_path = 'cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml'
-        
+        """Load camera extrinsics from wrist_to_d435.tf"""
+        extrinsics_path = 'cam_env/easy_handeye/wrist_to_d435.tf'
         with open(extrinsics_path, 'r') as f:
-            extrinsics_data = yaml.safe_load(f)
+            lines = [line.strip() for line in f if line.strip()]
         
-        # Extract quaternion (YAML format: [w,x,y,z] -> Scipy format: [x,y,z,w])
-        qw = extrinsics_data['transformation']['qw']
-        qx = extrinsics_data['transformation']['qx']
-        qy = extrinsics_data['transformation']['qy']
-        qz = extrinsics_data['transformation']['qz']
+        # The file has two header lines, so we skip them.
+        data_lines = lines[2:]
         
-        rot = R.from_quat([qx, qy, qz, qw]).as_matrix()
+        # The first data line (line 3 in the file) is the translation vector.
+        translation = np.array([float(x) for x in data_lines[0].split()])
         
-        # Extract translation
-        tx = extrinsics_data['transformation']['x']
-        ty = extrinsics_data['transformation']['y']
-        tz = extrinsics_data['transformation']['z']
+        # The next three data lines form the 3x3 rotation matrix.
+        rotation = np.array([[float(x) for x in line.split()] for line in data_lines[1:4]])
         
-        # Create 4x4 transformation matrix
+        # Create the 4x4 homogeneous transformation matrix.
         extrinsics = np.eye(4)
-        extrinsics[:3, :3] = rot
-        extrinsics[:3, 3] = [tx, ty, tz]
+        extrinsics[:3, :3] = rotation
+        extrinsics[:3, 3] = translation
         
         return extrinsics
 

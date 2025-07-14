@@ -105,5 +105,5 @@ release_keypoints = [?, ..., ?]
 ```
 
 ## Query
-Query Task: "Drop the game controller into the blue box."
+Query Task: "Drop the box cutter into the blue box."
 Query Image:

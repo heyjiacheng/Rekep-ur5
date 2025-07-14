@@ -4,7 +4,6 @@ import json
 import os
 import sys
 from scipy.spatial.transform import Rotation as R
-import yaml
 from ur_env.rotations import pose2quat, quat_2_rotvec
 import argparse
 
@@ -432,21 +431,24 @@ class UR5Controller:
         return base_coords_homogeneous[:, :3] / base_coords_homogeneous[:, 3, np.newaxis]
 
     def _load_camera_extrinsics(self):
-        """Load camera extrinsics from YAML file"""
-        extrinsics_path = 'cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml'
-        
+        """Load camera extrinsics from wrist_to_d435.tf"""
+        extrinsics_path = 'cam_env/easy_handeye/wrist_to_d435.tf'
         with open(extrinsics_path, 'r') as f:
-            extrinsics_data = yaml.safe_load(f)
+            lines = [line.strip() for line in f if line.strip()]
         
-        # Extract transformation parameters
-        t = extrinsics_data['transformation']
-        quat = [t['qx'], t['qy'], t['qz'], t['qw']]  # [x, y, z, w] format
-        pos = [t['x'], t['y'], t['z']]
+        # The file has two header lines, so we skip them.
+        data_lines = lines[2:]
         
-        # Create 4x4 transformation matrix
+        # The first data line (line 3 in the file) is the translation vector.
+        translation = np.array([float(x) for x in data_lines[0].split()])
+        
+        # The next three data lines form the 3x3 rotation matrix.
+        rotation = np.array([[float(x) for x in line.split()] for line in data_lines[1:4]])
+        
+        # Create the 4x4 homogeneous transformation matrix.
         extrinsics = np.eye(4)
-        extrinsics[:3, :3] = R.from_quat(quat).as_matrix()
-        extrinsics[:3, 3] = pos
+        extrinsics[:3, :3] = rotation
+        extrinsics[:3, 3] = translation
         
         return extrinsics
 

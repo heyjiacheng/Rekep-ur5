@@ -21,6 +21,10 @@ Obtain an [OpenAI API](https://openai.com/blog/openai-api) key and set it up as 
 ```Shell
 export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
 ```
+Obtain an [Dino-X API](https://cloud.deepdataspace.com/playground/dino-x?referring_prompt=0) key and set it up as an environment variable:
+```Shell
+export Dino_X_API_KEY="YOUR_Dino_X_API_KEY"
+```
 
 ## Installation
 

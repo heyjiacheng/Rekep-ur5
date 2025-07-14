@@ -1,5 +1,4 @@
 import numpy as np
-import yaml
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial.transform import Rotation as R
@@ -11,25 +10,30 @@ import os
 class RobotVisualizer:
     """Simplified robot trajectory and coordinate frame visualizer"""
     
-    def __init__(self, extrinsics_path='cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml'):
+    def __init__(self, extrinsics_path='cam_env/easy_handeye/wrist_to_d435.tf'):
         """Initialize visualizer with camera extrinsics"""
         self.extrinsics_path = extrinsics_path
         self.ee2camera = self._load_camera_extrinsics()
         
     def _load_camera_extrinsics(self):
-        """Load camera extrinsics from YAML file"""
-        with open(self.extrinsics_path, 'r') as f:
-            data = yaml.safe_load(f)
+        """Load camera extrinsics from wrist_to_d435.tf"""
+        extrinsics_path = 'cam_env/easy_handeye/wrist_to_d435.tf'
+        with open(extrinsics_path, 'r') as f:
+            lines = [line.strip() for line in f if line.strip()]
         
-        # Extract transformation parameters
-        t = data['transformation']
-        quat = [t['qx'], t['qy'], t['qz'], t['qw']]  # [x,y,z,w] format for scipy
-        pos = [t['x'], t['y'], t['z']]
+        # The file has two header lines, so we skip them.
+        data_lines = lines[2:]
         
-        # Create transformation matrix
+        # The first data line (line 3 in the file) is the translation vector.
+        translation = np.array([float(x) for x in data_lines[0].split()])
+        
+        # The next three data lines form the 3x3 rotation matrix.
+        rotation = np.array([[float(x) for x in line.split()] for line in data_lines[1:4]])
+        
+        # Create the 4x4 homogeneous transformation matrix.
         extrinsics = np.eye(4)
-        extrinsics[:3, :3] = R.from_quat(quat).as_matrix()
-        extrinsics[:3, 3] = pos
+        extrinsics[:3, :3] = rotation
+        extrinsics[:3, 3] = translation
         
         return extrinsics
     
@@ -114,7 +118,7 @@ class RobotVisualizer:
     
     def _get_test_ee_pose(self):
         """Get test end effector pose for visualization"""
-        return np.array([-0.25736064, -0.16367309, 0.56684215, 0.99999998, -0.00002284, 0.00000602, 2.11842992e-04])
+        return np.array([-0.18473626, -0.1244737, 0.65743017, -0.68954672, 0.72244374, 0.01478353, 0.04880384])
     
     def visualize(self, rekep_program_dir=None, action_file_path=None):
         """Main visualization function"""
@@ -269,7 +273,7 @@ def main():
     """Main function"""
     parser = argparse.ArgumentParser(description='Visualize robot frames, keypoints, and trajectory')
     parser.add_argument('--extrinsics', type=str, 
-                       default='cam_env/easy_handeye/easy_handeye_eye_on_hand.yaml',
+                       default='cam_env/easy_handeye/wrist_to_d435.tf',
                        help='Path to camera extrinsics YAML file')
     parser.add_argument('--rekep_dir', type=str, 
                        help='Path to ReKep program directory containing metadata.json')

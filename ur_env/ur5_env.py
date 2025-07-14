@@ -104,7 +104,7 @@ class ur5Robot:
 
             # Get the task space pose (x, y, z, Rx, Ry, Rz)
             task_space_pose = rtde_receive.getActualTCPPose()
-            task_space_pose = task_space_pose[:3] + [-val for val in task_space_pose[3:]]
+            task_space_pose = task_space_pose[:3] + [val for val in task_space_pose[3:]]
             # print("Task Space Pose (x, y, z, Rx, Ry, Rz):", task_space_pose)
 
             pos = pose2quat(task_space_pose)
