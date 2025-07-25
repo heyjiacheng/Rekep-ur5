@@ -1,8 +1,0 @@
-def stage2_subgoal_constraint1(end_effector, keypoints):
-    """The center of the box cutter (mean of keypoints 3, 4, 5) should be 10cm above the center of the blue box (mean of keypoints 0, 1, 2)."""
-    box_center = (keypoints[0] + keypoints[1] + keypoints[2]) / 3
-    cutter_center = (keypoints[3] + keypoints[4] + keypoints[5]) / 3
-    offsetted_point = box_center + np.array([0, 0, 0.10])
-    cost = np.linalg.norm(cutter_center - offsetted_point)
-    return cost
-
