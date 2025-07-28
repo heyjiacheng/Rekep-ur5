@@ -1,0 +1,10 @@
+def stage3_subgoal_constraint1(end_effector, keypoints):
+    """Ensure the box cutter (keypoint 0) is inside the blue box (between keypoints 5 and 6 in x-y plane, and below their z)."""
+    box_min = np.minimum(keypoints[5], keypoints[6])
+    box_max = np.maximum(keypoints[5], keypoints[6])
+    cutter = keypoints[0]
+    xy_inside = np.all(cutter[:2] >= box_min[:2]) and np.all(cutter[:2] <= box_max[:2])
+    z_below = cutter[2] <= max(keypoints[5][2], keypoints[6][2])
+    cost = 0 if (xy_inside and z_below) else 1
+    return cost
+
