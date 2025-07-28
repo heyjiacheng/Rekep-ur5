@@ -49,7 +49,7 @@ Suppose you are controlling a robot to perform manipulation tasks by writing con
   - `keypoints`: np.array of shape `(K, 3)` representing the keypoint positions.
 - For any path constraint that requires the robot to be still grasping a keypoint `i`, you may use the provided function `get_grasping_cost_by_keypoint_idx` by calling `return get_grasping_cost_by_keypoint_idx(i)` where `i` is the index of the keypoint. 
 - Inside of each function, you may use native Python functions, any NumPy functions, and the provided `get_grasping_cost_by_keypoint_idx` function.
-- For any stage, you should only write one sub-goal constraint that associates the end-effector with a keypoint. No path constraints are needed.
+- For grasping stage, you should only write one sub-goal constraint that associates the end-effector with a keypoint. No path constraints are needed.
 - In order to move a keypoint, its associated object must be grasped in one of the previous stages.
 - The robot can only grasp one object at a time.
 - Grasping must be an independent stage from other stages.
