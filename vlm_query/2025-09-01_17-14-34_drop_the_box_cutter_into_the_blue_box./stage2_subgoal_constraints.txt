@@ -1,0 +1,7 @@
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """The end-effector is 10cm above the center of the blue box (average of keypoints 2 and 3)."""
+    center_point = (keypoints[2] + keypoints[3]) / 2
+    offsetted_point = center_point + np.array([0, 0, 0.10])
+    cost = np.linalg.norm(end_effector - offsetted_point)
+    return cost
+

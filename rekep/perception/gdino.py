@@ -5,7 +5,16 @@ import os
 import numpy as np
 import cv2
 import supervision as sv
-from rekep.perception.rle_util import rle_to_array
+from pycocotools import mask as maskUtils
+
+def decode_coco_mask(mask_obj):
+    H, W = mask_obj["size"]
+    rle = {"size": [H, W], "counts": mask_obj["counts"]}
+    # 支持 compressed(string) 和 uncompressed(list)，都交给 pycocotools
+    if isinstance(rle["counts"], list):
+        rle = maskUtils.frPyObjects(rle, H, W)
+    m = maskUtils.decode(rle)  # (H, W) uint8 {0,1}
+    return m
 
 API_TOKEN = os.getenv("DDS_CLOUDAPI_TEST_TOKEN")
 
@@ -46,7 +55,7 @@ class GroundingDINO:
 
         for idx, obj in enumerate(predictions):
             boxes.append(obj["bbox"])
-            masks.append(rle_to_array(obj["mask"]["counts"], obj["mask"]["size"][0] * obj["mask"]["size"][1]).reshape(obj["mask"]["size"]))
+            masks.append(decode_coco_mask(obj["mask"]))
             confidences.append(obj["score"])
             cls_name = obj["category"].lower().strip()
             class_names.append(cls_name)

@@ -2,7 +2,7 @@
 name = "Rekep-ur5"
 requires-python = ">= 3.11"
 version = "0.1.0"
-dependencies = ["pyrealsense2>=2.55.1.6486,<3", "opencv-python", "openai>=1.78.1,<2", "kmeans-pytorch>=0.3,<0.4", "numba>=0.61.2,<0.62", "open3d>=0.18.0,<0.19", "rich>=14.0.0,<15", "parse>=1.20.2,<2", "dds-cloudapi-sdk>=0.4.1,<0.5", "imageio>=2.37.0,<3", "ur-rtde>=1.6.1,<2"]
+dependencies = ["pyrealsense2>=2.55.1.6486,<3", "opencv-python", "openai>=1.78.1,<2", "kmeans-pytorch>=0.3,<0.4", "numba>=0.61.2,<0.62", "open3d>=0.18.0,<0.19", "rich>=14.0.0,<15", "parse>=1.20.2,<2", "dds-cloudapi-sdk>=0.4.1,<0.5", "imageio>=2.37.0,<3", "ur-rtde>=1.6.1,<2", "pycocotools>=2.0.10,<3"]
 
 [build-system]
 build-backend = "hatchling.build"
