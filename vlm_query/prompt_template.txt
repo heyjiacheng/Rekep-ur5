@@ -13,7 +13,7 @@ Suppose you are controlling a robot to perform manipulation tasks by writing con
       - 1 sub-goal constraints: "align the end-effector with the teapot handle"
       - 0 path constraints
     - "align teapot with cup opening" stage:
-      - 1 sub-goal constraints: "the teapot spout needs to be 10cm above the cup opening"
+      - 1 sub-goal constraints: "the end-effector needs to be 10cm above the cup opening"
       - 2 path constraints: "the robot must still be grasping the teapot handle", "the teapot must stay upright to avoid spilling"
     - "pour liquid" stage:
       - 2 sub-goal constraints: "the teapot spout needs to be 5cm above the cup opening", "the teapot spout must be tilted to pour liquid"
@@ -23,17 +23,17 @@ Suppose you are controlling a robot to perform manipulation tasks by writing con
       - 1 sub-goal constraints: "align the end-effector with the red block"
       - 0 path constraints
     - "drop the red block on top of blue block" stage:
-      - 1 sub-goal constraints: "the red block is 10cm on top of the blue block"
+      - 1 sub-goal constraints: "the end-effector is 10cm on top of the blue block"
       - 1 path constraints: "the robot must still be grasping the red block"
   - "eorient bouquet and drop it upright into vase":
     - "grasp bouquet" stage:
       - 1 sub-goal constraints: "align the end-effector with the bouquet stem"
       - 0 path constraints
     - "reorient bouquet" stage:
-      - 1 sub-goal constraints: "the bouquet is upright (parallel to the z-axis)"
+      - 1 sub-goal constraints: "the end-effector is upright (parallel to the z-axis)"
       - 1 path constraints: "the robot must still be grasping the bouquet stem"
     - "keep upright and drop into vase" stage:
-      - 2 sub-goal constraints: "the bouquet must still stay upright (parallel to the z-axis)", "the bouquet is 20cm above the vase opening"
+      - 2 sub-goal constraints: "the end-effector must still stay upright (parallel to the z-axis)", "the end-effector is 20cm above the vase opening"
       - 1 path constraints: "the robot must still be grasping the bouquet stem"
 - Summarize keypoints to be grasped in all grasping stages by defining the `grasp_keypoints` variable.
 - Summarize at the end of which stage the robot should release the keypoints by defining the `release_keypoints` variable.
@@ -49,7 +49,7 @@ Suppose you are controlling a robot to perform manipulation tasks by writing con
   - `keypoints`: np.array of shape `(K, 3)` representing the keypoint positions.
 - For any path constraint that requires the robot to be still grasping a keypoint `i`, you may use the provided function `get_grasping_cost_by_keypoint_idx` by calling `return get_grasping_cost_by_keypoint_idx(i)` where `i` is the index of the keypoint. 
 - Inside of each function, you may use native Python functions, any NumPy functions, and the provided `get_grasping_cost_by_keypoint_idx` function.
-- For grasping stage, you should only write one sub-goal constraint that associates the end-effector with a keypoint. No path constraints are needed.
+- For any stage, you should only write one sub-goal constraint that associates the end-effector with a keypoint. No path constraints are needed.
 - In order to move a keypoint, its associated object must be grasped in one of the previous stages.
 - The robot can only grasp one object at a time.
 - Grasping must be an independent stage from other stages.
