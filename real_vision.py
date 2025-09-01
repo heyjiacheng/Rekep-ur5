@@ -209,7 +209,7 @@ if __name__ == "__main__":
         # args.instruction = "Drop the marker pen into the blue box."
         # args.instruction = "Drop the game controller into the blue box."
         # args.instruction = "Grab the game controller."
-        args.instruction = "Drop the wrench, screwdriver, box cutter and pliers into the blue box."
+        args.instruction = "Drop the box cutter into the box."
         # args.instruction = "Put down the green package into drawer."
         # args.instruction = "Pour the object in the bowl into the pot."
         # args.instruction = "Place the pasta bag into the drawer, the end-effector is already at the drawer's keypoint, the drawer is already aligned with the pasta bag and at the proper height."

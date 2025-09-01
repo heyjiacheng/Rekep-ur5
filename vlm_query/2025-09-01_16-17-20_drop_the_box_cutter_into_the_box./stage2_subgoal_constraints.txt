@@ -1,0 +1,6 @@
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """The box cutter handle (keypoint 12) is 5cm above the center of the box (keypoint 8)."""
+    offset = np.array([0, 0, 0.05])
+    target_position = keypoints[8] + offset
+    return np.linalg.norm(keypoints[12] - target_position)
+

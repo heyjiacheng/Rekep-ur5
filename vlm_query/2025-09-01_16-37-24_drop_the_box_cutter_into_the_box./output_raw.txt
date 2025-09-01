@@ -1,0 +1,32 @@
+```python
+# The task is "Drop the box cutter into the box."
+# From the image, keypoints 11 and 12 are on the box cutter, and keypoint 8 is inside the box.
+# This task involves 2 stages:
+# 1. Grasp the box cutter (grasping must be a separate stage)
+# 2. Drop the box cutter into the box
+
+num_stages = 2
+
+### stage 1 sub-goal constraints (grasp box cutter)
+def stage1_subgoal_constraint1(end_effector, keypoints):
+    """Align the end-effector with the handle of the box cutter (keypoint 12)."""
+    return np.linalg.norm(end_effector - keypoints[12])
+
+### stage 1 path constraints
+# No path constraints for grasping stage
+
+### stage 2 sub-goal constraints (drop box cutter into the box)
+def stage2_subgoal_constraint1(end_effector, keypoints):
+    """Ensure the box cutter handle (keypoint 12) is 5cm above the center of the box (keypoint 8)."""
+    offset = np.array([0, 0, 0.05])
+    offsetted_point = keypoints[8] + offset
+    return np.linalg.norm(keypoints[12] - offsetted_point)
+
+### stage 2 path constraints
+def stage2_path_constraint1(end_effector, keypoints):
+    """The robot must still be grasping the box cutter handle (keypoint 12)."""
+    return get_grasping_cost_by_keypoint_idx(12)
+
+grasp_keypoints = [12, -1]
+release_keypoints = [-1, 12]
+```
